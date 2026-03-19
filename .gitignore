@@ -1,0 +1,37 @@
+# Visual Studio
+.vs/
+[Bb]in/
+[Oo]bj/
+*.user
+*.suo
+*.sln.docattachments.res
+*.cache
+*.opendb
+*.ide
+*.db
+*.TMP
+*.log
+
+# Databases (Shared in repo for dev, but backup files ignored)
+*.bak
+*.ldf
+*.mdf (optional, keep if part of project)
+
+# Temporary Files
+tmp/
+*.tmp
+*.~*
+Thumbs.db
+Desktop.ini
+
+# SCI POS Specific
+final_build.log
+build.log
+build_errors.log
+build_errors_v*.log
+build_errors_v*.txt
+errors.txt
+build_log.txt
+*.png (Except specific logos)
+Logo.png (keep)
+!Logo.png

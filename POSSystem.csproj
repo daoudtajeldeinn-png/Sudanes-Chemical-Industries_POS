@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props"
+          Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')"/>
+
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>POSSystem</RootNamespace>
+    <AssemblyName>SudanChemicalIndustries_POS</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+<Deterministic>true</Deterministic>
+    <LangVersion>8.0</LangVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="System"/>
+    <Reference Include="System.Configuration"/>
+    <Reference Include="System.Data"/>
+    <Reference Include="System.Drawing"/>
+    <Reference Include="System.Windows.Forms"/>
+    <Reference Include="System.Xml"/>
+    <Reference Include="Microsoft.VisualBasic"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- النواة الأساسية -->
+    <Compile Include="Properties\AssemblyInfo.cs"/>
+    <Compile Include="AppSession.cs"/>
+    <Compile Include="Program.cs"/>
+    <Compile Include="Models\Models.cs"/>
+    <Compile Include="Models\ComboItem.cs"/>
+    <Compile Include="DAL\DatabaseHelper.cs"/>
+    <Compile Include="UI\UIHelper.cs"/>
+    <Compile Include="DAL\UserDAL.cs"/>
+    <Compile Include="DAL\ProductDAL.cs"/>
+    <Compile Include="DAL\SalesDAL.cs"/>
+    <Compile Include="DAL\OtherDAL.cs"/>
+    <Compile Include="Forms\LoginForm.cs"/>
+    <Compile Include="Forms\MainForm.cs"/>
+    <Compile Include="Forms\POS\POSForm.cs"/>
+    <Compile Include="Forms\DashboardControl.cs"/>
+    <Compile Include="Forms\OtherForms.cs"/>
+    <Compile Include="Forms\ProductEditForm.cs"/>
+    <Compile Include="Forms\CustomerEditForm.cs"/>
+    <Compile Include="Forms\SupplierEditForm.cs"/>
+    <Compile Include="Forms\ExpenseEditForm.cs"/>
+    <Compile Include="Forms\PurchaseEditForm.cs"/>
+    <Compile Include="Forms\StockAdjustmentForm.cs"/>
+    <Compile Include="Forms\UserEditForm.cs"/>
+    <!-- وحدة سلاسل الإمداد -->
+    <Compile Include="SupplyChain\Models\SCModels.cs"/>
+    <Compile Include="SupplyChain\DAL\SCDAL.cs"/>
+    <Compile Include="SupplyChain\Forms\SCForms.cs"/>
+    <Compile Include="SupplyChain\Forms\QCManagementForm.cs"/>
+    <Compile Include="SupplyChain\Forms\SCEditForm.cs"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="App.config"/>
+    <Content Include="Logo.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Include="Database\POSSystem_Database.sql"/>
+    <None Include="SupplyChain\Database\SupplyChain_DB.sql"/>
+  </ItemGroup>
+
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
+</Project>
