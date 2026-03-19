@@ -15,6 +15,8 @@ namespace POSSystem.Forms.POS
         private TextBox txtSearch;
         private DataGridView gridItems;
         private Label lblSubTotal, lblTax, lblDiscount, lblTotal;
+        private Label lblInvNumber, lblInvDate, lblInvUser, lblInvWarehouse;
+        private ComboBox cmbCustomer;
         private Button btnPay, btnClear, btnNew;
         private List<SaleItem> _items = new List<SaleItem>();
         private decimal _taxRate = 15;
@@ -42,16 +44,55 @@ namespace POSSystem.Forms.POS
             if (inv == null) return;
 
             _items = inv.Items;
+            lblInvNumber.Text = "رقم الفاتورة: " + inv.InvoiceNumber;
+            lblInvDate.Text = "التاريخ: " + inv.InvoiceDate.ToShortDateString();
+            cmbCustomer.SelectedValue = inv.CustomerID;
+            
             RefreshGrid();
-            btnPay.Text = "📝 نحديث الفاتورة";
+            btnPay.Text = "📝 تحديث الفاتورة";
         }
 
         private void InitializeComponents()
         {
             // Main Layout
-            var mainLayout = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, RowCount = 1 };
+            var mainLayout = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, RowCount = 2 };
             mainLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 75));
             mainLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25));
+            mainLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 100f));
+            mainLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100f));
+
+            // Header Panel
+            var pnlHeader = new Panel { Dock = DockStyle.Fill, BackColor = Color.FromArgb(30, 41, 59), Padding = new Padding(10) };
+            
+            // Logo
+            try {
+                var picLogo = new PictureBox { Dock = DockStyle.Left, Width = 80, SizeMode = PictureBoxSizeMode.Zoom, Image = Image.FromFile("Logo.png") };
+                pnlHeader.Controls.Add(picLogo);
+            } catch { }
+
+            var flowHeader = new FlowLayoutPanel { Dock = DockStyle.Fill, RightToLeft = RightToLeft.Yes };
+            lblInvNumber = CreateHeaderLabel("رقم الفاتورة:", "---");
+            lblInvDate = CreateHeaderLabel("التاريخ:", DateTime.Now.ToShortDateString());
+            lblInvUser = CreateHeaderLabel("المستخدم:", AppSession.CurrentUser?.FullName ?? "Admin");
+            lblInvWarehouse = CreateHeaderLabel("المخزن:", "المخزن الرئيسي");
+            
+            var lblCust = new Label { Text = "العميل:", ForeColor = Color.White, AutoSize = true, Font = new Font("Segoe UI", 10f, FontStyle.Bold), Margin = new Padding(10, 5, 0, 0) };
+            cmbCustomer = new ComboBox { Width = 200, DropDownStyle = ComboBoxStyle.DropDownList };
+            LoadCustomers();
+
+            btnNew = new Button { 
+                Text = "➕ فاتورة جديدة", 
+                Width = 140, Height = 45, 
+                BackColor = Color.FromArgb(16, 185, 129), 
+                ForeColor = Color.White, 
+                FlatStyle = FlatStyle.Flat,
+                Font = new Font("Segoe UI", 10f, FontStyle.Bold),
+                Margin = new Padding(20, 0, 0, 0)
+            };
+            btnNew.Click += (s, e) => ResetPOS();
+
+            flowHeader.Controls.AddRange(new Control[] { lblInvNumber, lblInvDate, lblInvUser, lblInvWarehouse, lblCust, cmbCustomer, btnNew });
+            pnlHeader.Controls.Add(flowHeader);
 
             // Left Side: Search and Grid
             var leftPnl = new Panel { Dock = DockStyle.Fill, Padding = new Padding(10) };
@@ -123,9 +164,32 @@ namespace POSSystem.Forms.POS
             rightPnl.Controls.Add(btnClear);
             rightPnl.Controls.Add(btnPay);
 
-            mainLayout.Controls.Add(leftPnl, 0, 0);
-            mainLayout.Controls.Add(rightPnl, 1, 0);
+            mainLayout.Controls.Add(pnlHeader, 0, 0);
+            mainLayout.SetColumnSpan(pnlHeader, 2);
+            mainLayout.Controls.Add(leftPnl, 0, 1);
+            mainLayout.Controls.Add(rightPnl, 1, 1);
             this.Controls.Add(mainLayout);
+        }
+
+        private Label CreateHeaderLabel(string title, string val)
+        {
+            return new Label { 
+                Text = $"{title} {val}", 
+                ForeColor = Color.White, 
+                AutoSize = true, 
+                Font = new Font("Segoe UI", 10f, FontStyle.Bold),
+                Margin = new Padding(20, 5, 0, 0)
+            };
+        }
+
+        private void LoadCustomers()
+        {
+            try {
+                var dt = DatabaseHelper.ExecuteQuery("SELECT CustomerID, CustomerName FROM Customers WHERE IsActive=1");
+                cmbCustomer.DataSource = dt;
+                cmbCustomer.DisplayMember = "CustomerName";
+                cmbCustomer.ValueMember = "CustomerID";
+            } catch { }
         }
 
         private Label CreateSummaryLabel(string title, string val, Color? color = null, float fontSize = 12)
@@ -260,12 +324,17 @@ namespace POSSystem.Forms.POS
             // Simple Pay Dialog logic
             var invoice = new SalesInvoice {
                 InvoiceID = _invoiceID,
+                InvoiceNumber = _invoiceID > 0 ? lblInvNumber.Text.Replace("رقم الفاتورة: ", "") : null,
                 InvoiceDate = DateTime.Now,
-                UserID = AppSession.CurrentUser.UserID,
+                UserID = AppSession.CurrentUser?.UserID ?? 1,
                 WarehouseID = AppSession.CurrentWarehouseID,
+                CustomerID = cmbCustomer.SelectedValue == null ? (int?)null : (int)cmbCustomer.SelectedValue,
                 InvoiceType = "RETAIL",
                 Status = "PAID",
                 PaymentMethod = "CASH",
+                DiscountType = "AMOUNT", // Default
+                DiscountValue = 0,
+                DiscountAmount = 0,
                 SubTotal = _items.Sum(i => i.SubTotal),
                 TaxAmount = _items.Sum(i => i.TaxAmount),
                 TotalAmount = total,
@@ -329,9 +398,15 @@ namespace POSSystem.Forms.POS
         private void ResetPOS()
         {
             _items.Clear();
+            _invoiceID = 0;
             txtSearch.Clear();
             RefreshGrid();
             txtSearch.Focus();
+            btnPay.Text = "💳 دفع وأرشفة (F12)";
+            
+            lblInvNumber.Text = "رقم الفاتورة: ---";
+            lblInvDate.Text = "التاريخ: " + DateTime.Now.ToShortDateString();
+            if (cmbCustomer.Items.Count > 0) cmbCustomer.SelectedIndex = 0;
         }
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {

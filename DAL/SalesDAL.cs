@@ -2,6 +2,7 @@ using System;
 using System.Data;
 using System.Data.SqlClient;
 using System.Collections.Generic;
+using System.Linq;
 using POSSystem.Models;
 
 namespace POSSystem.DAL
@@ -9,6 +10,22 @@ namespace POSSystem.DAL
     public class SalesDAL
     {
         // حفظ فاتورة مبيعات كاملة
+        public static string GetNextInvoiceNumber()
+        {
+            string prefix = "INV-" + DateTime.Now.ToString("yyyyMMdd") + "-";
+            string sql = "SELECT TOP 1 InvoiceNumber FROM SalesInvoices WHERE InvoiceNumber LIKE @P + '%' ORDER BY InvoiceNumber DESC";
+            var dt = DatabaseHelper.ExecuteQuery(sql, new SqlParameter("@P", prefix));
+            
+            int next = 1;
+            if (dt.Rows.Count > 0)
+            {
+                string last = dt.Rows[0]["InvoiceNumber"].ToString();
+                int.TryParse(last.Split('-').Last(), out next);
+                next++;
+            }
+            return prefix + next.ToString("D4");
+        }
+
         public static int SaveInvoice(SalesInvoice invoice)
         {
             int invoiceID = invoice.InvoiceID;
@@ -32,6 +49,7 @@ namespace POSSystem.DAL
                             (@InvoiceNumber, @InvoiceType, @InvoiceDate, @CustomerID, @WarehouseID, @UserID,
                              @SubTotal, @DiscountType, @DiscountValue, @DiscountAmount, @TaxAmount, @TotalAmount,
                              @PaidAmount, @RemainingAmount, @PaymentMethod, @Status, @Notes)";
+
 
                     using (var cmd = new SqlCommand(sqlHeader, conn, tran))
                     {
