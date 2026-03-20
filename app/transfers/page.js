@@ -80,11 +80,11 @@ export default function TransfersPage() {
           <tbody className="divide-y divide-gray-50">
             {transfers.map(t => (
               <tr key={t._id} className="hover:bg-gray-50 transition-colors">
-                <td className="px-5 py-4 font-bold text-blue-800">{t.fromWarehouse?.warehouseName}</td>
-                <td className="px-5 py-4 font-bold text-green-800">{t.toWarehouse?.warehouseName}</td>
+                <td className="px-5 py-4 font-bold text-blue-800">{t.fromWarehouse?.warehouseName || '---'}</td>
+                <td className="px-5 py-4 font-bold text-green-800">{t.toWarehouse?.warehouseName || '---'}</td>
                 <td className="px-5 py-4">
                   <div className="text-xs text-gray-600">
-                    {t.items.map((it, i) => <div key={i}>{it.product?.productNameAr} ({it.quantity})</div>)}
+                    {t.items?.map((it, i) => <div key={i}>{it.product?.productNameAr || it.product?.productName} ({it.quantity})</div>)}
                   </div>
                 </td>
                 <td className="px-5 py-4">
@@ -95,7 +95,9 @@ export default function TransfersPage() {
                     {t.status === 'PENDING' ? 'قيد الانتظار' : t.status === 'SENT' ? 'تم الإرسال 🚚' : 'تم الاستلام ✅'}
                   </span>
                 </td>
-                <td className="px-5 py-4 text-xs text-gray-400">{new Date(t.createdAt).toLocaleDateString('ar-SD')}</td>
+                <td className="px-5 py-4 text-xs text-gray-400">
+                  {t.createdAt ? new Date(t.createdAt).toLocaleDateString('ar-SD') : '---'}
+                </td>
                 <td className="px-5 py-4">
                   {t.status === 'PENDING' && (
                     <button onClick={() => handleUpdateStatus(t._id, 'SENT')} className="text-blue-600 hover:underline">إرسال 🚚</button>
