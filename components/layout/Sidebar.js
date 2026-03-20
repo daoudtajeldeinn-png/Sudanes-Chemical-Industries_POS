@@ -6,6 +6,7 @@ import toast from 'react-hot-toast';
 
 const navItems = [
   { href: '/inventory',  label: 'المخزن والجرد',    icon: '📦', roles: ['مدير النظام', 'مدير الإنتاج', 'أمين المخزن', 'محاسب'] },
+  { href: '/transfers',  label: 'تحويلات المخازن',   icon: '🚚', roles: ['مدير النظام', 'أمين المخزن', 'مدير الإنتاج'] },
   { href: '/pos',        label: 'المبيعات والصرف',    icon: '🛒', roles: ['مدير النظام', 'مسؤول مبيعات', 'مدير الإنتاج'] },
   { href: '/sales',      label: 'المبيعات',      icon: '🧾', roles: ['مدير النظام', 'مسؤول مبيعات', 'محاسب'] },
   { href: '/production', label: 'الإنتاج والوصفات', icon: '⚗️', roles: ['مدير النظام', 'مدير الإنتاج'] },
