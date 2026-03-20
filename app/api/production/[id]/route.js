@@ -9,12 +9,12 @@ import mongoose from 'mongoose';
 import { getAuthUser } from '@/lib/auth';
 
 export async function PUT(req, { params }) {
+  await connectDB();
   const session = await mongoose.startSession();
   session.startTransaction();
   try {
     const user = getAuthUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    await connectDB();
     const { id } = params;
     const { status, actualQty } = await req.json();
 
