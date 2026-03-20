@@ -59,12 +59,23 @@ export default function PurchasesPage() {
 
   return (
     <div className="p-6 space-y-5">
-      <div className="flex items-center justify-between">
+      <div className="print-header">
+        <h1 className="text-2xl font-bold">الصناعات الكيميائية السودانية (SCI)</h1>
+        <h2 className="text-xl">تقرير المشتريات والتوريد</h2>
+        <p className="text-sm">بتاريخ: {new Date().toLocaleString('ar-SD')}</p>
+      </div>
+
+      <div className="flex justify-between items-center no-print">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">🏭 المشتريات</h1>
-          <p className="text-sm text-gray-500 mt-1">{purchases.length} فاتورة</p>
+          <p className="text-sm text-gray-500 mt-1">إدارة فواتير شراء المواد والمستهلكات</p>
         </div>
-        <button onClick={() => setModal(true)} className="btn-primary">+ فاتورة شراء جديدة</button>
+        <div className="flex gap-3">
+          <button onClick={() => setModal('add')} className="btn-primary">+ فاتورة شراء</button>
+          <button onClick={() => window.print()} className="btn-secondary flex items-center gap-2">
+            <span>🖨️</span> طباعة القائمة
+          </button>
+        </div>
       </div>
 
       <div className="flex gap-3 flex-wrap items-center">
