@@ -11,7 +11,7 @@ const navItems = [
   { href: '/purchases',  label: 'المشتريات',     icon: '🏭' },
   { href: '/expenses',   label: 'المصروفات',     icon: '💸' },
    { href: '/products',   label: 'المنتجات',      icon: '📦' },
-  { href: '/warehouses', label: 'المستودعات',   icon: '🏠' },
+  { href: '/warehouses', label: 'المخازن',       icon: '🏠' },
   { href: '/units',      label: 'وحدات القياس', icon: '📏' },
   { href: '/customers',  label: 'العملاء',       icon: '👥' },
   { href: '/suppliers',  label: 'الموردون',      icon: '🤝' },

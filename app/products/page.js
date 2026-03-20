@@ -11,6 +11,7 @@ export default function ProductsPage() {
   const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState(null);
   const [form, setForm] = useState({});
+  const [warehouses, setWarehouses] = useState([]);
 
   const load = () => {
     setLoading(true);
@@ -24,6 +25,7 @@ export default function ProductsPage() {
   useEffect(() => {
     fetch('/api/categories').then(r => r.json()).then(d => setCategories(d.categories || []));
     fetch('/api/units').then(r => r.json()).then(d => setUnits(d.units || []));
+    fetch('/api/warehouses').then(r => r.json()).then(d => setWarehouses(d.warehouses || []));
   }, []);
 
   const openAdd = () => {
@@ -197,6 +199,24 @@ export default function ProductsPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">الوصف</label>
                 <textarea rows={2} value={form.description || ''} onChange={e => setForm(p => ({ ...p, description: e.target.value }))} className="input-field" />
               </div>
+              {modal === 'add' && (
+                <>
+                  <div className="col-span-2 border-t pt-4 mt-2">
+                    <h3 className="text-sm font-bold text-blue-600 mb-3">📦 الرصيد الافتتاحي (اختياري)</h3>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">الكمية الأولية</label>
+                    <input type="number" min="0" value={form.initialStock || 0} onChange={e => setForm(p => ({ ...p, initialStock: e.target.value }))} className="input-field bg-blue-50/30" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">المستودع</label>
+                    <select value={form.warehouseId || ''} onChange={e => setForm(p => ({ ...p, warehouseId: e.target.value }))} className="input-field bg-blue-50/30">
+                      <option value="">-- اختر المستودع --</option>
+                      {warehouses.map(w => <option key={w._id} value={w._id}>{w.warehouseName}</option>)}
+                    </select>
+                  </div>
+                </>
+              )}
             </div>
             <div className="p-6 border-t flex gap-3 justify-end sticky bottom-0 bg-white">
               <button onClick={() => setModal(null)} className="btn-secondary">إلغاء</button>
