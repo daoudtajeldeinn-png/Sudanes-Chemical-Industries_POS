@@ -116,7 +116,7 @@ export async function POST(req) {
         warehouse: body.warehouse,
         batchId: item.batchId || null,
         movementType: 'OUT',
-        referenceType: 'SALE',
+        referenceType: body.type === 'ISSUE' ? 'CONSUMPTION' : 'SALE',
         quantity: -item.quantity,
         unitCost: product.costPrice,
         user: user.id,
@@ -126,31 +126,41 @@ export async function POST(req) {
     body.items = items;
     body.subTotal = subTotal;
 
-    // Apply invoice-level discount
-    if (body.discountType === 'PERCENT') {
-      body.discountAmount = subTotal * (body.discountValue / 100);
+    // Skip financial logic for Internal Issuing
+    if (body.type === 'ISSUE') {
+      body.discountAmount = 0;
+      body.taxAmount = 0;
+      body.totalAmount = subTotal;
+      body.paidAmount = subTotal;
+      body.paymentMethod = 'CASH';
+      body.status = 'PAID';
+    } else {
+      // Apply invoice-level discount
+      if (body.discountType === 'PERCENT') {
+        body.discountAmount = subTotal * (body.discountValue / 100);
+      }
+      body.totalAmount = subTotal - (body.discountAmount || 0) + (body.taxAmount || 0);
+      body.remainingAmount = body.totalAmount - (body.paidAmount || 0);
+
+      if (body.paidAmount >= body.totalAmount) body.status = 'PAID';
+      else if (body.paidAmount > 0) body.status = 'PARTIAL';
+      else if (body.paymentMethod === 'CREDIT') body.status = 'CREDIT';
     }
-    body.totalAmount = subTotal - (body.discountAmount || 0) + (body.taxAmount || 0);
-    body.remainingAmount = body.totalAmount - (body.paidAmount || 0);
 
-    if (body.paidAmount >= body.totalAmount) body.status = 'PAID';
-    else if (body.paidAmount > 0) body.status = 'PARTIAL';
-    else if (body.paymentMethod === 'CREDIT') body.status = 'CREDIT';
-
-    // Generate a simple QR code string (could be refined for specific tax requirements)
+    // Generate a simple QR code string
     const qrData = {
       n: 'SCI',
       i: body.invoiceNumber || 'NEW',
       d: new Date().toISOString(),
       t: body.totalAmount,
-      x: body.taxAmount
+      x: body.taxAmount || 0
     };
     body.qrCode = Buffer.from(JSON.stringify(qrData)).toString('base64');
 
     const sale = await Sale.create([body], { session });
 
-    // Update customer balance if credit/remaining
-    if (body.customer && body.remainingAmount > 0) {
+    // Update customer balance if credit/remaining (only for real sales)
+    if (body.type !== 'ISSUE' && body.customer && body.remainingAmount > 0) {
       await Customer.findByIdAndUpdate(body.customer, { $inc: { currentBalance: body.remainingAmount } }).session(session);
     }
 

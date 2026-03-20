@@ -17,7 +17,7 @@ export default function POSPage() {
   const [discountType, setDiscountType] = useState('AMOUNT');
   const [discountValue, setDiscountValue] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [lastInvoice, setLastInvoice] = useState(null);
+  const [posMode, setPosMode] = useState('SALE'); // 'SALE' or 'ISSUE'
   const searchRef = useRef(null);
 
   useEffect(() => {
@@ -32,16 +32,25 @@ export default function POSPage() {
     searchRef.current?.focus();
   }, []);
 
-  const filtered = products.filter(p =>
-    (p.productNameAr?.includes(search) ||
-     p.productName?.toLowerCase().includes(search.toLowerCase()) ||
-     p.productCode?.toLowerCase().includes(search.toLowerCase()) ||
-     p.barcode?.includes(search)) &&
-    p.isActive && (p.productType === 'FINISHED_GOOD' || !p.productType)
-  );
+  const filtered = products.filter(p => {
+    const matchesSearch = (
+      p.productNameAr?.includes(search) ||
+      p.productName?.toLowerCase().includes(search.toLowerCase()) ||
+      p.productCode?.toLowerCase().includes(search.toLowerCase()) ||
+      p.barcode?.includes(search)
+    );
+    if (!matchesSearch || !p.isActive) return false;
+    
+    if (posMode === 'SALE') {
+      return p.productType === 'FINISHED_GOOD' || !p.productType;
+    } else {
+      return ['RAW_MATERIAL', 'PACKAGING', 'CONSUMABLE'].includes(p.productType);
+    }
+  });
 
   const addToCart = (product) => {
-    const price = invoiceType === 'WHOLESALE' ? product.wholesalePrice : product.retailPrice;
+    // In Issue mode, price is always cost price
+    const price = posMode === 'ISSUE' ? product.costPrice : (invoiceType === 'WHOLESALE' ? product.wholesalePrice : product.retailPrice);
     setCart(prev => {
       const existing = prev.find(i => i._id === product._id);
       if (existing) return prev.map(i => i._id === product._id ? { ...i, qty: i.qty + 1 } : i);
@@ -65,9 +74,9 @@ export default function POSPage() {
   const clearCart = () => { if (confirm('مسح السلة؟')) setCart([]); };
 
   const subTotal = cart.reduce((s, i) => s + i.qty * i.price, 0);
-  const discountAmount = discountType === 'PERCENT'
+  const discountAmount = posMode === 'ISSUE' ? 0 : (discountType === 'PERCENT'
     ? subTotal * (discountValue / 100)
-    : Math.min(parseFloat(discountValue) || 0, subTotal);
+    : Math.min(parseFloat(discountValue) || 0, subTotal));
   const totalAmount = subTotal - discountAmount;
   const change = Math.max(0, (parseFloat(amountPaid) || 0) - totalAmount);
 
@@ -75,7 +84,7 @@ export default function POSPage() {
 
   const handleCheckout = async () => {
     if (cart.length === 0) return toast.error('السلة فارغة!');
-    if (paymentMethod === 'CASH') {
+    if (posMode === 'SALE' && paymentMethod === 'CASH') {
       const paid = parseFloat(amountPaid) || 0;
       if (paid < totalAmount) return toast.error('المبلغ المدفوع أقل من الإجمالي');
     }
@@ -85,9 +94,10 @@ export default function POSPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          invoiceType,
+          type: posMode, // 'SALE' or 'ISSUE'
+          invoiceType: posMode === 'ISSUE' ? 'INTERNAL' : invoiceType,
           customer: selectedCustomer?._id,
-          customerName: selectedCustomer?.customerName || 'عميل نقدي',
+          customerName: posMode === 'ISSUE' ? 'الصرف الداخلي (المصنع)' : (selectedCustomer?.customerName || 'عميل نقدي'),
           warehouse: selectedWarehouse?._id,
           items: cart.map(i => ({
             product: i._id,
@@ -102,14 +112,14 @@ export default function POSPage() {
           discountType,
           discountValue: parseFloat(discountValue) || 0,
           discountAmount,
-          paymentMethod,
-          paidAmount: paymentMethod === 'CREDIT' ? 0 : (parseFloat(amountPaid) || totalAmount),
-          status: paymentMethod === 'CREDIT' ? 'CREDIT' : 'PAID',
+          paymentMethod: posMode === 'ISSUE' ? 'CASH' : paymentMethod,
+          paidAmount: posMode === 'ISSUE' ? totalAmount : (paymentMethod === 'CREDIT' ? 0 : (parseFloat(amountPaid) || totalAmount)),
+          status: posMode === 'ISSUE' ? 'PAID' : (paymentMethod === 'CREDIT' ? 'CREDIT' : 'PAID'),
         }),
       });
       const data = await res.json();
       if (res.ok) {
-        toast.success('✅ تم البيع بنجاح!');
+        toast.success(posMode === 'ISSUE' ? '✅ تم الصرف الداخلي بنجاح' : '✅ تم البيع بنجاح!');
         setLastInvoice(data.sale);
         setCart([]);
         setSelectedCustomer(null);
@@ -130,19 +140,31 @@ export default function POSPage() {
         {/* Top bar */}
         <div className="p-4 border-b bg-gray-50 space-y-3">
           <div className="flex items-center gap-3">
-            <h1 className="text-xl font-bold text-gray-900 whitespace-nowrap">🛒 نقطة البيع</h1>
-            <div className="flex gap-2 mr-auto">
-              <button onClick={() => setInvoiceType('RETAIL')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${invoiceType === 'RETAIL' ? 'bg-blue-600 text-white border-blue-600' : 'text-gray-600 border-gray-200 hover:border-blue-300'}`}>
-                تجزئة
+            <div className="flex bg-gray-200 p-1 rounded-xl">
+              <button onClick={() => { setPosMode('SALE'); setCart([]); }}
+                className={`px-4 py-1.5 rounded-lg text-sm font-bold transition-all ${posMode === 'SALE' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-500 hover:text-gray-700'}`}>
+                🛒 بيع منتجات
               </button>
-              <button onClick={() => setInvoiceType('WHOLESALE')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${invoiceType === 'WHOLESALE' ? 'bg-purple-600 text-white border-purple-600' : 'text-gray-600 border-gray-200 hover:border-purple-300'}`}>
-                جملة
+              <button onClick={() => { setPosMode('ISSUE'); setCart([]); }}
+                className={`px-4 py-1.5 rounded-lg text-sm font-bold transition-all ${posMode === 'ISSUE' ? 'bg-orange-600 text-white shadow-md' : 'text-gray-500 hover:text-gray-700'}`}>
+                🏭 صرف خامات/وقود
               </button>
             </div>
+            
+            {posMode === 'SALE' && (
+              <div className="flex gap-1 mr-auto">
+                <button onClick={() => setInvoiceType('RETAIL')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${invoiceType === 'RETAIL' ? 'bg-blue-600 text-white border-blue-600' : 'text-gray-600 border-gray-200 hover:border-blue-300'}`}>
+                  تجزئة
+                </button>
+                <button onClick={() => setInvoiceType('WHOLESALE')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${invoiceType === 'WHOLESALE' ? 'bg-purple-600 text-white border-purple-600' : 'text-gray-600 border-gray-200 hover:border-purple-300'}`}>
+                  جملة
+                </button>
+              </div>
+            )}
           </div>
-          <input ref={searchRef} type="text" placeholder="🔍 ابحث بالاسم أو الكود أو الباركود..."
+          <input ref={searchRef} type="text" placeholder={posMode === 'SALE' ? "🔍 ابحث عن دواء أو منتج نهائي..." : "🔍 ابحث عن خام أو وقود أو عبوات..."}
             className="input-field text-base" value={search} onChange={e => setSearch(e.target.value)} />
         </div>
 
@@ -159,11 +181,14 @@ export default function POSPage() {
                   className={`text-right p-3 rounded-xl border-2 transition-all text-sm ${
                     isOut ? 'opacity-40 cursor-not-allowed border-gray-100 bg-gray-50'
                     : isLow ? 'border-yellow-300 bg-yellow-50 hover:border-yellow-500 hover:shadow-md'
+                    : posMode === 'ISSUE' ? 'border-orange-200 bg-white hover:border-orange-400 hover:bg-orange-50 hover:shadow-md'
                     : 'border-gray-200 bg-white hover:border-blue-400 hover:bg-blue-50 hover:shadow-md'
                   }`}>
                   <div className="font-semibold text-gray-900 truncate leading-tight">{p.productNameAr || p.productName}</div>
                   <div className="text-xs text-gray-400 mt-0.5 font-mono">{p.productCode}</div>
-                  <div className="text-blue-600 font-bold mt-2">{fmt(price)} <span className="text-xs font-normal">SDG</span></div>
+                  <div className={`${posMode === 'ISSUE' ? 'text-orange-600' : 'text-blue-600'} font-bold mt-2`}>
+                    {fmt(price)} <span className="text-xs font-normal">SDG</span>
+                  </div>
                   <div className={`text-xs mt-1 ${isOut ? 'text-red-500' : isLow ? 'text-yellow-600' : 'text-green-600'}`}>
                     {isOut ? '⛔ نفد' : `${stock} ${p.unit?.unitCode || ''}`}
                   </div>
