@@ -5,13 +5,13 @@ import { useState } from 'react';
 import toast from 'react-hot-toast';
 
 const navItems = [
-  { href: '/dashboard',  label: 'لوحة التحكم',  icon: '📊' },
+  { href: '/inventory',  label: 'المخزن والجرد',    icon: '📦' },
   { href: '/pos',        label: 'نقطة البيع',    icon: '🛒' },
   { href: '/sales',      label: 'المبيعات',      icon: '🧾' },
   { href: '/purchases',  label: 'المشتريات',     icon: '🏭' },
   { href: '/expenses',   label: 'المصروفات',     icon: '💸' },
-   { href: '/products',   label: 'المنتجات',      icon: '📦' },
-  { href: '/warehouses', label: 'المخازن',       icon: '🏠' },
+  { href: '/products',   label: 'قائمة الأصناف',   icon: '📝' },
+  { href: '/warehouses', label: 'المستودعات',   icon: '🏠' },
   { href: '/units',      label: 'وحدات القياس', icon: '📏' },
   { href: '/customers',  label: 'العملاء',       icon: '👥' },
   { href: '/suppliers',  label: 'الموردون',      icon: '🤝' },
