@@ -81,16 +81,18 @@ export default function SettingsPage() {
       {/* Login Info */}
       <div className="card border-2 border-blue-200 bg-blue-50">
         <h2 className="text-lg font-semibold text-blue-800 mb-3">🔐 بيانات تسجيل الدخول</h2>
-        <div className="grid grid-cols-2 gap-3 text-sm">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
           {[
-            { label: 'المستخدم الافتراضي', value: 'admin', mono: true },
-            { label: 'كلمة المرور', value: '123456', mono: true },
-            { label: 'البريد الإلكتروني', value: 'admin@sci.sd', mono: true },
-            { label: 'الصلاحية', value: 'مدير النظام' },
+            { label: 'مدير النظام', value: 'admin', pass: '123456' },
+            { label: 'مدير الإنتاج', value: 'prod_mgr', pass: '123456' },
+            { label: 'أمين المخزن', value: 'wh_mgr', pass: '123456' },
+            { label: 'محاسب', value: 'acc_mgr', pass: '123456' },
+            { label: 'مبيعات', value: 'sales_rep', pass: '123456' },
           ].map((f, i) => (
-            <div key={i} className="bg-white rounded-lg px-3 py-2">
-              <div className="text-xs text-gray-500">{f.label}</div>
-              <div className={`font-bold text-blue-800 ${f.mono ? 'font-mono' : ''}`}>{f.value}</div>
+            <div key={i} className="bg-white rounded-lg px-3 py-2 border border-blue-100">
+              <div className="text-[10px] text-gray-500 font-bold">{f.label}</div>
+              <div className="font-mono text-blue-800 text-xs">User: {f.value}</div>
+              <div className="font-mono text-gray-400 text-[10px]">Pass: {f.pass}</div>
             </div>
           ))}
         </div>

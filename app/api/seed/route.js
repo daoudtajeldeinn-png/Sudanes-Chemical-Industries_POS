@@ -17,22 +17,25 @@ export async function GET() {
   try {
     await connectDB();
 
-    // Create Admin User
-    let admin = await User.findOne({ username: 'admin' });
-    if (admin) {
-      admin.passwordHash = 'admin@123';
-      admin.fullName = 'Director Admin';
-      admin.email = 'admin@sci.sd';
-      admin.roleName = 'مدير النظام';
-      await admin.save();
-    } else {
-      await User.create({
-        username: 'admin',
-        passwordHash: 'admin@123',
-        fullName: 'Director Admin',
-        email: 'admin@sci.sd',
-        roleName: 'مدير النظام'
-      });
+    // Create Default Users for Departments
+    const defaultUsers = [
+      { username: 'admin',     passwordHash: '123456', fullName: 'مدير النظام', roleName: 'مدير النظام' },
+      { username: 'prod_mgr',  passwordHash: '123456', fullName: 'مدير الإنتاج', roleName: 'مدير الإنتاج' },
+      { username: 'wh_mgr',    passwordHash: '123456', fullName: 'أمين المخزن', roleName: 'أمين المخزن' },
+      { username: 'acc_mgr',   passwordHash: '123456', fullName: 'المحاسب المالي', roleName: 'محاسب' },
+      { username: 'sales_rep', passwordHash: '123456', fullName: 'مندوب مبيعات', roleName: 'مسؤول مبيعات' },
+    ];
+
+    for (const u of defaultUsers) {
+      const exists = await User.findOne({ username: u.username });
+      if (exists) {
+        exists.passwordHash = u.passwordHash;
+        exists.roleName = u.roleName;
+        exists.isActive = true;
+        await exists.save();
+      } else {
+        await User.create(u);
+      }
     }
 
     // Company settings
