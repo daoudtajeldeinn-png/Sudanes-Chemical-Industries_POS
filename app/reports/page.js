@@ -58,9 +58,19 @@ export default function ReportsPage() {
 
   return (
     <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between flex-wrap gap-3">
+      <div className="print-header">
+        <h1 className="text-2xl font-bold">الصناعات الكيميائية السودانية (SCI)</h1>
+        <h2 className="text-xl">تقرير الأداء المالي والإحصائي</h2>
+        <p className="text-sm">بتاريخ: {new Date().toLocaleString('ar-SD')}</p>
+        <p className="text-xs">الفترة من: {from || '-'} إلى: {to || '-'}</p>
+      </div>
+
+      <div className="flex items-center justify-between flex-wrap gap-3 no-print">
         <h1 className="text-2xl font-bold text-gray-900">📈 التقارير والإحصائيات</h1>
         <div className="flex gap-3 items-center flex-wrap">
+          <button onClick={() => window.print()} className="btn-secondary flex items-center gap-2">
+            <span>🖨️</span> طباعة التقرير (PDF)
+          </button>
           <div className="flex items-center gap-2 text-sm">
             <span className="text-gray-600">من:</span>
             <input type="date" value={from} onChange={e => setFrom(e.target.value)} className="input-field w-36" />

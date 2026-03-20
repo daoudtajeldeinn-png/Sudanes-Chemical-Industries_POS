@@ -95,6 +95,7 @@ export default function InventoryPage() {
           </button>
         </div>
       </div>
+    </div>
 
       {/* Classification Tabs */}
       <div className="flex gap-2 border-b border-gray-200">
