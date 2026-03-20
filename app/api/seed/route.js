@@ -17,18 +17,23 @@ export async function GET() {
   try {
     await connectDB();
 
-    // Create Admin User
-    const admin = await User.findOneAndUpdate(
-      { username: 'admin' },
-      { 
+    // Create Admin User (Using .save() or .create() to trigger hashing hook)
+    let admin = await User.findOne({ username: 'admin' });
+    if (admin) {
+      admin.passwordHash = 'admin@123';
+      admin.fullName = 'Director Admin';
+      admin.email = 'admin@sci.sd';
+      admin.roleName = 'مدير النظام';
+      await admin.save();
+    } else {
+      await User.create({
         username: 'admin',
-        passwordHash: '123456', // Will be hashed by pre-save hook
+        passwordHash: 'admin@123',
         fullName: 'Director Admin',
         email: 'admin@sci.sd',
         roleName: 'مدير النظام'
-      },
-      { upsert: true, new: true, runValidators: true }
-    );
+      });
+    }
 
     // Company settings
     await CompanySettings.findOneAndUpdate({}, {
