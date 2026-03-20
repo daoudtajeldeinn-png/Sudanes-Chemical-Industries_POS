@@ -5,19 +5,19 @@ import { useState } from 'react';
 import toast from 'react-hot-toast';
 
 const navItems = [
-  { href: '/inventory',  label: 'المخزن والجرد',    icon: '📦' },
-  { href: '/pos',        label: 'المبيعات والصرف',    icon: '🛒' },
-  { href: '/sales',      label: 'المبيعات',      icon: '🧾' },
-  { href: '/production', label: 'الإنتاج والوصفات', icon: '⚗️' },
-  { href: '/purchases',  label: 'المشتريات',     icon: '🏭' },
-  { href: '/expenses',   label: 'المصروفات',     icon: '💸' },
-  { href: '/products',   label: 'قائمة الأصناف',   icon: '📝' },
-  { href: '/warehouses', label: 'المستودعات',   icon: '🏠' },
-  { href: '/units',      label: 'وحدات القياس', icon: '📏' },
-  { href: '/customers',  label: 'العملاء',       icon: '👥' },
-  { href: '/suppliers',  label: 'الموردون',      icon: '🤝' },
-  { href: '/reports',    label: 'التقارير',      icon: '📈' },
-  { href: '/settings',   label: 'الإعدادات',     icon: '⚙️' },
+  { href: '/inventory',  label: 'المخزن والجرد',    icon: '📦', roles: ['مدير النظام', 'مدير الإنتاج', 'أمين المخزن', 'محاسب'] },
+  { href: '/pos',        label: 'المبيعات والصرف',    icon: '🛒', roles: ['مدير النظام', 'مسؤول مبيعات', 'مدير الإنتاج'] },
+  { href: '/sales',      label: 'المبيعات',      icon: '🧾', roles: ['مدير النظام', 'مسؤول مبيعات', 'محاسب'] },
+  { href: '/production', label: 'الإنتاج والوصفات', icon: '⚗️', roles: ['مدير النظام', 'مدير الإنتاج'] },
+  { href: '/purchases',  label: 'المشتريات',     icon: '🏭', roles: ['مدير النظام', 'محاسب', 'أمين المخزن'] },
+  { href: '/expenses',   label: 'المصروفات',     icon: '💸', roles: ['مدير النظام', 'محاسب'] },
+  { href: '/products',   label: 'قائمة الأصناف',   icon: '📝', roles: ['مدير النظام', 'مدير الإنتاج', 'أمين المخزن'] },
+  { href: '/warehouses', label: 'المستودعات',   icon: '🏠', roles: ['مدير النظام', 'أمين المخزن'] },
+  { href: '/units',      label: 'وحدات القياس', icon: '📏', roles: ['مدير النظام'] },
+  { href: '/customers',  label: 'العملاء',       icon: '👥', roles: ['مدير النظام', 'مسؤول مبيعات'] },
+  { href: '/suppliers',  label: 'الموردون',      icon: '🤝', roles: ['مدير النظام', 'محاسب'] },
+  { href: '/reports',    label: 'التقارير',      icon: '📈', roles: ['مدير النظام', 'محاسب'] },
+  { href: '/settings',   label: 'الإعدادات',     icon: '⚙️', roles: ['مدير النظام'] },
 ];
 
 export default function Sidebar({ user }) {
@@ -31,8 +31,11 @@ export default function Sidebar({ user }) {
     router.push('/');
   };
 
+  const userRole = user?.role || 'كاشير';
+  const visibleItems = navItems.filter(item => !item.roles || item.roles.includes(userRole));
+
   return (
-    <aside className={`bg-slate-900 text-white flex flex-col transition-all duration-300 ${collapsed ? 'w-16' : 'w-60'} min-h-screen flex-shrink-0`}>
+    <aside className={`bg-slate-900 text-white flex flex-col transition-all duration-300 ${collapsed ? 'w-16' : 'w-60'} min-h-screen flex-shrink-0 no-print`}>
       {/* Header */}
       <div className="p-4 border-b border-slate-700 flex items-center justify-between">
         {!collapsed && (
@@ -49,7 +52,7 @@ export default function Sidebar({ user }) {
 
       {/* Nav */}
       <nav className="flex-1 p-2 space-y-0.5 overflow-y-auto">
-        {navItems.map(item => {
+        {visibleItems.map(item => {
           const active = pathname === item.href || pathname.startsWith(item.href + '/');
           return (
             <Link key={item.href} href={item.href}
