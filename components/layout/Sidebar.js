@@ -8,6 +8,7 @@ const navItems = [
   { href: '/inventory',  label: 'المخزن والجرد',    icon: '📦' },
   { href: '/pos',        label: 'المبيعات والصرف',    icon: '🛒' },
   { href: '/sales',      label: 'المبيعات',      icon: '🧾' },
+  { href: '/production', label: 'الإنتاج والوصفات', icon: '⚗️' },
   { href: '/purchases',  label: 'المشتريات',     icon: '🏭' },
   { href: '/expenses',   label: 'المصروفات',     icon: '💸' },
   { href: '/products',   label: 'قائمة الأصناف',   icon: '📝' },
