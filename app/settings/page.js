@@ -83,7 +83,7 @@ export default function SettingsPage() {
         <h2 className="text-lg font-semibold text-blue-800 mb-3">🔐 بيانات تسجيل الدخول</h2>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
           {[
-            { label: 'مدير النظام', value: 'admin', pass: '123456' },
+            { label: 'مدير النظام', value: 'admin', pass: 'admin@123' },
             { label: 'مدير الإنتاج', value: 'prod_mgr', pass: '123456' },
             { label: 'أمين المخزن', value: 'wh_mgr', pass: '123456' },
             { label: 'محاسب', value: 'acc_mgr', pass: '123456' },

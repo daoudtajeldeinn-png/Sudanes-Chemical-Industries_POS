@@ -19,7 +19,7 @@ export async function GET() {
 
     // Create Default Users for Departments
     const defaultUsers = [
-      { username: 'admin',     passwordHash: '123456', fullName: 'مدير النظام', roleName: 'مدير النظام' },
+      { username: 'admin',     passwordHash: 'admin@123', fullName: 'مدير النظام', roleName: 'مدير النظام' },
       { username: 'prod_mgr',  passwordHash: '123456', fullName: 'مدير الإنتاج', roleName: 'مدير الإنتاج' },
       { username: 'wh_mgr',    passwordHash: '123456', fullName: 'أمين المخزن', roleName: 'أمين المخزن' },
       { username: 'acc_mgr',   passwordHash: '123456', fullName: 'المحاسب المالي', roleName: 'محاسب' },
