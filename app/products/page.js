@@ -165,6 +165,15 @@ export default function ProductsPage() {
                 </select>
               </div>
               <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">نوع الصنف *</label>
+                <select value={form.productType || 'FINISHED_GOOD'} onChange={e => setForm(p => ({ ...p, productType: e.target.value }))} className="input-field bg-yellow-50/30">
+                  <option value="FINISHED_GOOD">🏠 منتج نهائي (للبيع)</option>
+                  <option value="RAW_MATERIAL">🧪 مادة خام (للشراء)</option>
+                  <option value="PACKAGING">📦 مواد تعبئة (للشراء)</option>
+                  <option value="CONSUMABLE">⚡ مستهلكات/وقود (للشراء)</option>
+                </select>
+              </div>
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">وحدة القياس</label>
                 <select value={form.unit || ''} onChange={e => setForm(p => ({ ...p, unit: e.target.value }))} className="input-field">
                   <option value="">-- اختر الوحدة --</option>

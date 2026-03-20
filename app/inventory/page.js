@@ -2,14 +2,21 @@
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 
+const TYPES = [
+  { id: 'FINISHED_GOOD', label: 'منتجات نهائية', icon: '💊' },
+  { id: 'RAW_MATERIAL',  label: 'مواد خام',      icon: '🧪' },
+  { id: 'PACKAGING',     label: 'تعبئة وتغليف',  icon: '📦' },
+  { id: 'CONSUMABLE',    label: 'مستهلكات أخرى', icon: '⚡' },
+];
+
 export default function InventoryPage() {
   const [stockData, setStockData] = useState([]);
   const [batches, setBatches] = useState([]);
   const [warehouses, setWarehouses] = useState([]);
-  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('FINISHED_GOOD');
   const [viewMode, setViewMode] = useState('PRODUCT'); // 'PRODUCT' or 'BATCH'
-  const [filter, setFilter] = useState({ category: '', warehouse: '', search: '' });
+  const [filter, setFilter] = useState({ warehouse: '', search: '' });
 
   useEffect(() => {
     loadData();
@@ -17,19 +24,17 @@ export default function InventoryPage() {
 
   const loadData = async () => {
     try {
-      const [pRes, wRes, cRes, bRes] = await Promise.all([
+      const [pRes, wRes, bRes] = await Promise.all([
         fetch('/api/products'),
         fetch('/api/warehouses'),
-        fetch('/api/categories'),
-        fetch('/api/batches') // I need to make sure this API exists or returns data
+        fetch('/api/batches')
       ]);
-      const [pData, wData, cData, bData] = await Promise.all([
-        pRes.json(), wRes.json(), cRes.json(), bRes.json()
+      const [pData, wData, bData] = await Promise.all([
+        pRes.json(), wRes.json(), bRes.json()
       ]);
       
       setStockData(pData.products || []);
       setWarehouses(wData.warehouses || []);
-      setCategories(cData.categories || []);
       setBatches(bData.batches || []);
     } catch (err) {
       toast.error('خطأ في تحميل بيانات المخزن');
@@ -39,7 +44,7 @@ export default function InventoryPage() {
   };
 
   const filteredProducts = stockData.filter(p => {
-    if (filter.category && p.category?._id !== filter.category) return false;
+    if (p.productType !== activeTab) return false;
     if (filter.search && !(
       p.productNameAr?.includes(filter.search) || 
       p.productName?.toLowerCase().includes(filter.search.toLowerCase()) ||
@@ -49,6 +54,7 @@ export default function InventoryPage() {
   });
 
   const filteredBatches = batches.filter(b => {
+    if (b.product?.productType !== activeTab) return false;
     if (filter.warehouse && b.warehouse?._id !== filter.warehouse) return false;
     if (filter.search && !(
       b.batchNumber?.includes(filter.search) || 
@@ -65,33 +71,41 @@ export default function InventoryPage() {
     <div className="p-6 space-y-6" dir="rtl">
       <div className="flex justify-between items-center bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">📦 المخزن والجرد (GMP)</h1>
-          <p className="text-sm text-gray-500 mt-1">تتبع التشغيلات وتواريخ الانتهاء</p>
+          <h1 className="text-2xl font-bold text-gray-900">🏢 مستودع SCI والتحكم</h1>
+          <p className="text-sm text-gray-500 mt-1">إدارة المخزون حسب التصنيف المؤسسي</p>
         </div>
         <div className="flex gap-2 bg-gray-100 p-1 rounded-xl">
           <button onClick={() => setViewMode('PRODUCT')}
             className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${viewMode === 'PRODUCT' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
-            حسب الصنف
+            عرض حسب النوع
           </button>
           <button onClick={() => setViewMode('BATCH')}
             className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${viewMode === 'BATCH' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
-            تتبع التشغيلات (Batches)
+            تتبع التشغيلات (GMP)
           </button>
         </div>
       </div>
 
+      {/* Classification Tabs */}
+      <div className="flex gap-2 border-b border-gray-200">
+        {TYPES.map(t => (
+          <button key={t.id} onClick={() => setActiveTab(t.id)}
+            className={`px-6 py-3 text-sm font-bold transition-all border-b-2 -mb-px flex items-center gap-2 ${
+              activeTab === t.id ? 'border-blue-600 text-blue-600 bg-blue-50/30' : 'border-transparent text-gray-400 hover:text-gray-600'
+            }`}>
+            <span>{t.icon}</span> {t.label}
+          </button>
+        ))}
+      </div>
+
       <div className="flex gap-4 flex-wrap bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
-        <input type="text" placeholder="🔍 بحث سريع..." className="input-field w-64 text-sm" 
+        <input type="text" placeholder="🔍 بحث بالاسم أو الكود..." className="input-field w-64 text-sm" 
           value={filter.search} onChange={e => setFilter({ ...filter, search: e.target.value })} />
         <select className="input-field w-44 text-sm" value={filter.warehouse} onChange={e => setFilter({ ...filter, warehouse: e.target.value })}>
           <option value="">كل المستودعات</option>
           {warehouses.map(w => <option key={w._id} value={w._id}>{w.warehouseName}</option>)}
         </select>
-        <select className="input-field w-44 text-sm" value={filter.category} onChange={e => setFilter({ ...filter, category: e.target.value })}>
-          <option value="">كل التصنيفات</option>
-          {categories.map(c => <option key={c._id} value={c._id}>{c.categoryNameAr || c.categoryName}</option>)}
-        </select>
-        <button onClick={loadData} className="mr-auto text-blue-600 hover:rotate-180 transition-transform duration-500">🔄</button>
+        <button onClick={loadData} className="mr-auto text-blue-600 hover:rotate-180 transition-transform duration-500">🔄 تحديث</button>
       </div>
 
       <div className="card p-0 overflow-hidden shadow-lg border-none">
@@ -100,10 +114,10 @@ export default function InventoryPage() {
             <tr className="bg-gray-50 border-b border-gray-100 font-bold text-gray-700">
               {viewMode === 'PRODUCT' ? (
                 <>
-                  <th className="px-5 py-4 text-xs font-bold uppercase tracking-wider">كود المنتج</th>
-                  <th className="px-5 py-4 text-xs font-bold uppercase tracking-wider">اسم الصنف</th>
-                  <th className="px-5 py-4 text-xs font-bold uppercase tracking-wider">التصنيف</th>
-                  <th className="px-5 py-4 text-xs font-bold uppercase tracking-wider text-center">الرصيد الكلي</th>
+                  <th className="px-5 py-4 text-xs font-bold uppercase tracking-wider">كود الصنف</th>
+                  <th className="px-5 py-4 text-xs font-bold uppercase tracking-wider">اسم المادة/المنتج</th>
+                  <th className="px-5 py-4 text-xs font-bold uppercase tracking-wider text-center">الرصيد المتاح</th>
+                  <th className="px-5 py-4 text-xs font-bold uppercase tracking-wider text-center">العملة الأصلية</th>
                   <th className="px-5 py-4 text-xs font-bold uppercase tracking-wider text-center">الحالة</th>
                 </>
               ) : (
@@ -112,7 +126,7 @@ export default function InventoryPage() {
                   <th className="px-5 py-4 text-xs font-bold uppercase tracking-wider">الصنف</th>
                   <th className="px-5 py-4 text-xs font-bold uppercase tracking-wider">تاريخ الإنتاج</th>
                   <th className="px-5 py-4 text-xs font-bold uppercase tracking-wider">تاريخ الانتهاء</th>
-                  <th className="px-5 py-4 text-xs font-bold uppercase tracking-wider text-center">الكمية الحالية</th>
+                  <th className="px-5 py-4 text-xs font-bold uppercase tracking-wider text-center">الكمية</th>
                   <th className="px-5 py-4 text-xs font-bold uppercase tracking-wider text-center">المستودع</th>
                 </>
               )}
@@ -120,22 +134,24 @@ export default function InventoryPage() {
           </thead>
           <tbody className="divide-y divide-gray-50">
             {loading ? (
-              <tr><td colSpan={viewMode === 'PRODUCT' ? 5 : 6} className="text-center py-20 text-gray-400">جاري التحميل...</td></tr>
+              <tr><td colSpan={10} className="text-center py-20 text-gray-400 font-bold">جاري تحميل البيانات...</td></tr>
             ) : viewMode === 'PRODUCT' ? (
               filteredProducts.map(p => (
                 <tr key={p._id} className="hover:bg-blue-50/30 transition-colors group">
-                  <td className="px-5 py-4 text-sm font-mono text-blue-600 font-medium group-hover:scale-110 transition-transform origin-right">{p.productCode}</td>
+                  <td className="px-5 py-4 text-sm font-mono text-blue-600 font-medium">{p.productCode}</td>
                   <td className="px-5 py-4">
                     <div className="text-sm font-bold text-gray-900">{p.productNameAr || p.productName}</div>
                     <div className="text-[10px] text-gray-400 font-mono uppercase">{p.productName}</div>
                   </td>
-                  <td className="px-5 py-4">
-                    <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded-lg text-[10px] font-bold">{p.category?.categoryNameAr || 'عام'}</span>
-                  </td>
                   <td className="px-5 py-4 text-center font-bold text-base">
                     <span className={(p.stock || 0) <= (p.minStock || 0) ? 'text-red-500' : 'text-blue-700'}>
-                      {fmt(p.stock)} <span className="text-[10px] font-normal text-gray-400">{p.unit?.unitCode}</span>
+                      {fmt(p.stock)} <span className="text-[10px] font-normal text-gray-400">{p.unitCode || p.unit?.unitCode}</span>
                     </span>
+                  </td>
+                  <td className="px-5 py-4 text-center">
+                     <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${p.currency === 'USD' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>
+                       {p.currency || 'SDG'}
+                     </span>
                   </td>
                   <td className="px-5 py-4 text-center">
                     {(p.stock || 0) <= 0 ? <span className="status-badge-red">نفد</span>
@@ -160,8 +176,6 @@ export default function InventoryPage() {
                       <div className={`text-xs font-bold ${isExpired ? 'text-red-600' : isNearExpiry ? 'text-orange-500' : 'text-gray-700'}`}>
                         {formatDate(b.expiryDate)}
                       </div>
-                      {isExpired && <span className="text-[8px] font-bold text-red-500 block uppercase">منتهي!</span>}
-                      {isNearExpiry && !isExpired && <span className="text-[8px] font-bold text-orange-500 block uppercase">ينتهي قريباً</span>}
                     </td>
                     <td className="px-5 py-4 text-center font-bold text-blue-600 text-sm">{fmt(b.currentQty)}</td>
                     <td className="px-5 py-4 text-center text-xs text-gray-500">{b.warehouse?.warehouseName}</td>
@@ -170,7 +184,7 @@ export default function InventoryPage() {
               })
             )}
             {!loading && (viewMode === 'PRODUCT' ? filteredProducts : filteredBatches).length === 0 && (
-              <tr><td colSpan={10} className="text-center py-20 text-gray-400">لا توجد بيانات تطابق البحث</td></tr>
+              <tr><td colSpan={10} className="text-center py-20 text-gray-400 font-bold">لا توجد مواد ضمن هذا التصنيف حالياً</td></tr>
             )}
           </tbody>
         </table>
