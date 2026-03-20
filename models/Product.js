@@ -17,6 +17,7 @@ const ProductSchema = new mongoose.Schema({
   description: { type: String },
   currency: { type: String, enum: ['SDG', 'USD'], default: 'SDG' },
   exchangeRate: { type: Number, default: 1 },
+  productType: { type: String, enum: ['RAW_MATERIAL', 'FINISHED_GOOD', 'PACKAGING', 'CONSUMABLE'], default: 'FINISHED_GOOD' },
   isActive: { type: Boolean, default: true },
 }, { timestamps: true });
 

@@ -182,7 +182,7 @@ export default function PurchasesPage() {
                           <div className="col-span-11">
                             <select value={item.product} onChange={e => handleProductSelect(i, e.target.value)} className="input-field text-sm">
                               <option value="">-- اختر المنتج --</option>
-                              {products.map(p => <option key={p._id} value={p._id}>{p.productNameAr || p.productName} ({p.productCode})</option>)}
+                              {products.filter(p => p.productType !== 'FINISHED_GOOD').map(p => <option key={p._id} value={p._id}>{p.productNameAr || p.productName} ({p.productCode})</option>)}
                             </select>
                           </div>
                           <div className="col-span-1 text-center">

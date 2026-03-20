@@ -17,7 +17,7 @@ export async function GET() {
   try {
     await connectDB();
 
-    // Create Admin User (Using .save() or .create() to trigger hashing hook)
+    // Create Admin User
     let admin = await User.findOne({ username: 'admin' });
     if (admin) {
       admin.passwordHash = 'admin@123';
@@ -72,9 +72,9 @@ export async function GET() {
       units[u.unitCode] = unit._id;
     }
 
-    // Categories (SCI Classification)
+    // Categories
     const catData = [
-      { categoryName: 'Finished Products', categoryNameAr: 'منتجات نهائية' },
+      { categoryName: 'Finished Products', categoryNameAr: 'منتجات نهائية (دوائية)' },
       { categoryName: 'Active Raw Materials', categoryNameAr: 'مواد خام فعالة' },
       { categoryName: 'Inactive Raw Materials', categoryNameAr: 'مواد خام غير فعالة' },
       { categoryName: 'Packaging Materials', categoryNameAr: 'مواد تعبئة وتغليف' },
@@ -86,21 +86,21 @@ export async function GET() {
       cats[c.categoryName] = cat._id;
     }
 
-    // Products (Specific SCI Pharmaceuticals)
-    const products = [
-      { productCode: 'SCI-001', productName: 'Asprona 100mg', productNameAr: 'اسبرونا 100ملجم', category: cats['Finished Products'], unit: units['PCS'], costPrice: 50, wholesalePrice: 70, retailPrice: 100, taxRate: 0, minStock: 100 },
-      { productCode: 'SCI-002', productName: 'Asprona 300', productNameAr: 'اسبرونا 300', category: cats['Finished Products'], unit: units['PCS'], costPrice: 80, wholesalePrice: 110, retailPrice: 150, taxRate: 0, minStock: 100 },
-      { productCode: 'SCI-003', productName: 'Asprona 75', productNameAr: 'اسبرونا 75', category: cats['Finished Products'], unit: units['PCS'], costPrice: 40, wholesalePrice: 55, retailPrice: 80, taxRate: 0, minStock: 100 },
-      { productCode: 'SCI-004', productName: 'Trichocid 500mg', productNameAr: 'ترايكوسيد 500 ملجم Trichocid500mg', category: cats['Finished Products'], unit: units['BOX'], costPrice: 800, wholesalePrice: 1100, retailPrice: 1400, taxRate: 0, minStock: 30 },
-      { productCode: 'RAW-ACT-001', productName: 'Aspirin Powder (Active)', productNameAr: 'بودرة أسبرين (خام فعال)', category: cats['Active Raw Materials'], unit: units['KG'], costPrice: 20, wholesalePrice: 30, retailPrice: 40, currency: 'USD', exchangeRate: 600, taxRate: 0, minStock: 500 },
-      { productCode: 'RAW-INA-001', productName: 'Talcum Powder', productNameAr: 'بودرة تالك (غير فعالة)', category: cats['Inactive Raw Materials'], unit: units['KG'], costPrice: 5, wholesalePrice: 10, retailPrice: 15, currency: 'USD', exchangeRate: 600, taxRate: 0, minStock: 1000 },
-      { productCode: 'PACK-001', productName: 'Empty Glass Bottle', productNameAr: 'عبوات زجاجية فارغة', category: cats['Packaging Materials'], unit: units['PCS'], costPrice: 200, wholesalePrice: 300, retailPrice: 400, taxRate: 0, minStock: 10000 },
-      { productCode: 'FUEL-001', productName: 'Diesel (Stock)', productNameAr: 'ديزل (وقود)', category: cats['Admin & Consumables'], unit: units['L'], costPrice: 1500, wholesalePrice: 1800, retailPrice: 2000, taxRate: 0, minStock: 200 },
+    // Products (SCI Classification)
+    const productsData = [
+      { productCode: 'SCI-001', productName: 'Asprona 100mg', productNameAr: 'اسبرونا 100ملجم', category: cats['Finished Products'], unit: units['PCS'], costPrice: 50, retailPrice: 100, productType: 'FINISHED_GOOD' },
+      { productCode: 'SCI-002', productName: 'Asprona 300', productNameAr: 'اسبرونا 300', category: cats['Finished Products'], unit: units['PCS'], costPrice: 80, retailPrice: 150, productType: 'FINISHED_GOOD' },
+      { productCode: 'SCI-003', productName: 'Asprona 75', productNameAr: 'اسبرونا 75', category: cats['Finished Products'], unit: units['PCS'], costPrice: 40, retailPrice: 80, productType: 'FINISHED_GOOD' },
+      { productCode: 'SCI-004', productName: 'Trichocid 500mg', productNameAr: 'ترايكوسيد 500 ملجم Trichocid500mg', category: cats['Finished Products'], unit: units['BOX'], costPrice: 800, retailPrice: 1400, productType: 'FINISHED_GOOD' },
+      { productCode: 'RAW-ACT-001', productName: 'Aspirin Powder (Active)', productNameAr: 'بودرة أسبرين (خام فعال)', category: cats['Active Raw Materials'], unit: units['KG'], costPrice: 20, currency: 'USD', productType: 'RAW_MATERIAL' },
+      { productCode: 'RAW-INA-001', productName: 'Talcum Powder', productNameAr: 'بودرة تالك (غير فعالة)', category: cats['Inactive Raw Materials'], unit: units['KG'], costPrice: 5, currency: 'USD', productType: 'RAW_MATERIAL' },
+      { productCode: 'PACK-001', productName: 'Empty Glass Bottle', productNameAr: 'عبوات زجاجية فارغة', category: cats['Packaging Materials'], unit: units['PCS'], costPrice: 200, productType: 'PACKAGING' },
+      { productCode: 'FUEL-001', productName: 'Diesel', productNameAr: 'ديزل (وقود)', category: cats['Admin & Consumables'], unit: units['L'], costPrice: 1500, productType: 'CONSUMABLE' },
     ];
 
-    for (const p of products) {
+    for (const p of productsData) {
       const prod = await Product.findOneAndUpdate({ productCode: p.productCode }, { ...p, isActive: true }, { upsert: true, new: true });
-      // Stock
+      // Stock (random initial)
       const qty = Math.floor(Math.random() * 400) + 50;
       await ProductStock.findOneAndUpdate(
         { product: prod._id, warehouse: warehouse._id },
@@ -110,33 +110,23 @@ export async function GET() {
     }
 
     // Customer groups
-    const groupData = [
-      { groupName: 'عميل عادي', discountRate: 0, creditLimit: 0 },
-      { groupName: 'عميل جملة', discountRate: 5, creditLimit: 500000 },
-      { groupName: 'عميل مميز', discountRate: 10, creditLimit: 1000000 },
-      { groupName: 'موزع معتمد', discountRate: 15, creditLimit: 2000000 },
-    ];
-    const groups = {};
+    const groupData = [{ groupName: 'عميل عادي' }, { groupName: 'عميل جملة' }];
     for (const g of groupData) {
-      const grp = await CustomerGroup.findOneAndUpdate({ groupName: g.groupName }, { ...g, isActive: true }, { upsert: true, new: true });
-      groups[g.groupName] = grp._id;
+      await CustomerGroup.findOneAndUpdate({ groupName: g.groupName }, { ...g, isActive: true }, { upsert: true });
     }
 
     // Expense categories
-    const expCats = ['إيجار','رواتب','كهرباء وماء','صيانة','مواصلات','اتصالات','مصروفات إدارية','أخرى','وقود','غذاء'];
+    const expCats = ['إيجار','رواتب','كهرباء وماء','صيانة','مواصلات','اتصالات','وقود','غذاء'];
     for (const name of expCats) {
       await ExpenseCategory.findOneAndUpdate({ categoryName: name }, { categoryName: name, isActive: true }, { upsert: true });
     }
 
     // Suppliers
     await Supplier.findOneAndUpdate({ supplierCode: 'SUPP-001' },
-      { supplierCode: 'SUPP-001', supplierName: 'Gulf Chemicals Co.', phone: '+966501234567', city: 'Riyadh', country: 'KSA', isActive: true },
-      { upsert: true });
-    await Supplier.findOneAndUpdate({ supplierCode: 'SUPP-002' },
-      { supplierCode: 'SUPP-002', supplierName: 'Nile Chemical Factory', phone: '+249912345678', city: 'Khartoum', country: 'Sudan', isActive: true },
+      { supplierCode: 'SUPP-001', supplierName: 'Gulf Chemicals Co.', isActive: true },
       { upsert: true });
 
-    return NextResponse.json({ ok: true, message: 'تم إضافة البيانات التجريبية بنجاح! ✅' });
+    return NextResponse.json({ ok: true, message: 'تم إعادة بناء البيانات حسب تصنيفات SCI بنجاح! ✅' });
   } catch (err) {
     console.error(err);
     return NextResponse.json({ error: err.message }, { status: 500 });
