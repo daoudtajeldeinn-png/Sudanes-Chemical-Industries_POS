@@ -13,11 +13,22 @@ import CompanySettings from '@/models/CompanySettings';
 import { ExpenseCategory } from '@/models/Expense';
 import { getAuthUser } from '@/lib/auth';
 
-export async function POST() {
+export async function GET() {
   try {
-    const user = getAuthUser();
-    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     await connectDB();
+
+    // Create Admin User
+    const admin = await User.findOneAndUpdate(
+      { username: 'admin' },
+      { 
+        username: 'admin',
+        passwordHash: '123456', // Will be hashed by pre-save hook
+        fullName: 'Director Admin',
+        email: 'admin@sci.sd',
+        roleName: 'مدير النظام'
+      },
+      { upsert: true, new: true, runValidators: true }
+    );
 
     // Company settings
     await CompanySettings.findOneAndUpdate({}, {
