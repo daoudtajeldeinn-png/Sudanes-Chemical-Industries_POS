@@ -72,16 +72,15 @@ export async function GET() {
       units[u.unitCode] = unit._id;
     }
 
-    // Categories (from SQL)
+    // Categories (Pharmaceutical)
     const catData = [
-      { categoryName: 'Acids', categoryNameAr: 'أحماض' },
-      { categoryName: 'Bases', categoryNameAr: 'قواعد' },
-      { categoryName: 'Solvents', categoryNameAr: 'مذيبات' },
-      { categoryName: 'Fertilizers', categoryNameAr: 'أسمدة' },
-      { categoryName: 'Chlorine', categoryNameAr: 'كلور' },
-      { categoryName: 'Polymers', categoryNameAr: 'بوليمرات' },
-      { categoryName: 'Pigments', categoryNameAr: 'أصباغ' },
+      { categoryName: 'Analgesics', categoryNameAr: 'مسكنات' },
+      { categoryName: 'Antibiotics', categoryNameAr: 'مضادات حيوية' },
+      { categoryName: 'Antipyretics', categoryNameAr: 'خافضات حرارة' },
+      { categoryName: 'Vitamins', categoryNameAr: 'فيتامينات' },
+      { categoryName: 'Dermatologicals', categoryNameAr: 'جلدية' },
       { categoryName: 'Raw Materials', categoryNameAr: 'مواد خام' },
+      { categoryName: 'Packaging', categoryNameAr: 'مواد تعبئة وتغليف' },
     ];
     const cats = {};
     for (const c of catData) {
@@ -116,20 +115,14 @@ export async function GET() {
       { supplierCode: 'SUPP-002', supplierName: 'مصنع النيل للمواد الكيميائية', phone: '+249912345678', city: 'الخرطوم', country: 'Sudan', isActive: true },
       { upsert: true, new: true });
 
-    // Products (chemical - matching the company domain)
+    // Products (Pharmaceutical)
     const products = [
-      { productCode: 'ACID-001', productName: 'Sulfuric Acid 98%', productNameAr: 'حمض الكبريتيك 98%', category: cats['Acids'], unit: units['KG'], costPrice: 150, wholesalePrice: 200, retailPrice: 250, taxRate: 0, minStock: 50 },
-      { productCode: 'ACID-002', productName: 'Hydrochloric Acid 32%', productNameAr: 'حمض الهيدروكلوريك 32%', category: cats['Acids'], unit: units['L'], costPrice: 80, wholesalePrice: 120, retailPrice: 150, taxRate: 0, minStock: 30 },
-      { productCode: 'ACID-003', productName: 'Nitric Acid 65%', productNameAr: 'حمض النيتريك 65%', category: cats['Acids'], unit: units['L'], costPrice: 200, wholesalePrice: 290, retailPrice: 350, taxRate: 0, minStock: 20 },
-      { productCode: 'BASE-001', productName: 'Sodium Hydroxide', productNameAr: 'هيدروكسيد الصوديوم', category: cats['Bases'], unit: units['KG'], costPrice: 200, wholesalePrice: 300, retailPrice: 370, taxRate: 0, minStock: 25 },
-      { productCode: 'BASE-002', productName: 'Potassium Hydroxide', productNameAr: 'هيدروكسيد البوتاسيوم', category: cats['Bases'], unit: units['KG'], costPrice: 350, wholesalePrice: 500, retailPrice: 600, taxRate: 0, minStock: 15 },
-      { productCode: 'SOLV-001', productName: 'Ethanol 95%', productNameAr: 'إيثانول 95%', category: cats['Solvents'], unit: units['L'], costPrice: 120, wholesalePrice: 170, retailPrice: 210, taxRate: 0, minStock: 40 },
-      { productCode: 'SOLV-002', productName: 'Acetone', productNameAr: 'أسيتون', category: cats['Solvents'], unit: units['L'], costPrice: 95, wholesalePrice: 140, retailPrice: 175, taxRate: 0, minStock: 20 },
-      { productCode: 'FERT-001', productName: 'Urea 46%', productNameAr: 'يوريا 46%', category: cats['Fertilizers'], unit: units['TON'], costPrice: 45000, wholesalePrice: 58000, retailPrice: 65000, taxRate: 0, minStock: 5 },
-      { productCode: 'FERT-002', productName: 'Ammonium Sulfate', productNameAr: 'كبريتات الأمونيوم', category: cats['Fertilizers'], unit: units['TON'], costPrice: 30000, wholesalePrice: 40000, retailPrice: 48000, taxRate: 0, minStock: 5 },
-      { productCode: 'CHLR-001', productName: 'Chlorine Gas', productNameAr: 'غاز الكلور', category: cats['Chlorine'], unit: units['KG'], costPrice: 180, wholesalePrice: 250, retailPrice: 310, taxRate: 0, minStock: 20 },
-      { productCode: 'CHLR-002', productName: 'Sodium Hypochlorite', productNameAr: 'هيبوكلوريت الصوديوم', category: cats['Chlorine'], unit: units['L'], costPrice: 45, wholesalePrice: 65, retailPrice: 85, taxRate: 0, minStock: 50 },
-      { productCode: 'POLM-001', productName: 'Polyethylene Granules', productNameAr: 'حبيبات بولي إيثيلين', category: cats['Polymers'], unit: units['KG'], costPrice: 280, wholesalePrice: 380, retailPrice: 450, taxRate: 0, minStock: 100 },
+      { productCode: 'PHAR-001', productName: 'Aspirin 100mg', productNameAr: 'أسبرين 100 ملجم', category: cats['Analgesics'], unit: units['PCS'], costPrice: 50, wholesalePrice: 70, retailPrice: 100, taxRate: 0, minStock: 100 },
+      { productCode: 'PHAR-002', productName: 'Paracetamol 500mg', productNameAr: 'باراسيتامول 500 ملجم', category: cats['Antipyretics'], unit: units['PCS'], costPrice: 30, wholesalePrice: 45, retailPrice: 60, taxRate: 0, minStock: 200 },
+      { productCode: 'PHAR-003', productName: 'Amoxicillin 500mg', productNameAr: 'أموكسيسيلين 500 ملجم', category: cats['Antibiotics'], unit: units['BOX'], costPrice: 1200, wholesalePrice: 1500, retailPrice: 1800, taxRate: 0, minStock: 20 },
+      { productCode: 'PHAR-004', productName: 'Vitamin C 1000mg', productNameAr: 'فيتامين سي 1000 ملجم', category: cats['Vitamins'], unit: units['BOX'], costPrice: 1500, wholesalePrice: 1800, retailPrice: 2200, taxRate: 0, minStock: 30 },
+      { productCode: 'RAW-001', productName: 'Talc Powder', productNameAr: 'بودرة تالك', category: cats['Raw Materials'], unit: units['KG'], costPrice: 25, wholesalePrice: 35, retailPrice: 45, currency: 'USD', exchangeRate: 600, taxRate: 0, minStock: 500 },
+      { productCode: 'PACK-001', productName: 'Glass Bottle 100ml', productNameAr: 'عبوة زجاجية 100 مل', category: cats['Packaging'], unit: units['BOX'], costPrice: 500, wholesalePrice: 700, retailPrice: 1000, taxRate: 0, minStock: 1000 },
     ];
 
     for (const p of products) {
