@@ -30,6 +30,9 @@ const PurchaseSchema = new mongoose.Schema({
   remainingAmount: { type: Number, default: 0 },
   paymentMethod: { type: String, enum: ['CASH', 'CARD', 'CREDIT', 'TRANSFER'], default: 'CASH' },
   status: { type: String, enum: ['PAID', 'PARTIAL', 'CREDIT', 'CANCELLED'], default: 'PAID' },
+  purchaseCategory: { type: String, enum: ['RAW_MATERIAL', 'PACKAGING', 'FUEL', 'FOOD', 'EXPENSE', 'OTHER'], default: 'RAW_MATERIAL' },
+  currency: { type: String, enum: ['SDG', 'USD'], default: 'SDG' },
+  exchangeRate: { type: Number, default: 1 },
   notes: { type: String },
 }, { timestamps: true });
 

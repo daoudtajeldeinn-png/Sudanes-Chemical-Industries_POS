@@ -15,6 +15,8 @@ const ProductSchema = new mongoose.Schema({
   minStock: { type: Number, default: 0 },
   maxStock: { type: Number, default: 0 },
   description: { type: String },
+  currency: { type: String, enum: ['SDG', 'USD'], default: 'SDG' },
+  exchangeRate: { type: Number, default: 1 },
   isActive: { type: Boolean, default: true },
 }, { timestamps: true });
 
