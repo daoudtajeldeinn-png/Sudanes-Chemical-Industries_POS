@@ -25,12 +25,26 @@ export default function SalesPage() {
 
   return (
     <div className="p-6 space-y-5">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">🧾 الفواتير</h1>
-        <Link href="/pos" className="btn-primary">🛒 فاتورة جديدة</Link>
+      <div className="print-header">
+        <h1 className="text-2xl font-bold">الصناعات الكيميائية السودانية (SCI)</h1>
+        <h2 className="text-xl">تقرير المبيعات</h2>
+        <p className="text-sm">بتاريخ: {new Date().toLocaleString('ar-SD')}</p>
       </div>
 
-      <div className="flex gap-3 items-center flex-wrap">
+      <div className="flex justify-between items-center no-print">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">🧾 المبيعات</h1>
+          <p className="text-sm text-gray-500 mt-1">عرض وإدارة فواتير المبيعات</p>
+        </div>
+        <div className="flex gap-3">
+          <Link href="/pos" className="btn-primary">🛒 فاتورة جديدة</Link>
+          <button onClick={() => window.print()} className="btn-secondary flex items-center gap-2">
+            <span>🖨️</span> طباعة القائمة
+          </button>
+        </div>
+      </div>
+
+      <div className="flex gap-3 items-center flex-wrap no-print">
         <div className="flex items-center gap-2">
           <label className="text-sm text-gray-600">من:</label>
           <input type="date" value={from} onChange={e => setFrom(e.target.value)} className="input-field w-40" />

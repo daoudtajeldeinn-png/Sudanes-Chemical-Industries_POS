@@ -69,12 +69,22 @@ export default function InventoryPage() {
 
   return (
     <div className="p-6 space-y-6" dir="rtl">
-      <div className="flex justify-between items-center bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+      <div className="print-header">
+        <h1 className="text-2xl font-bold">الصناعات الكيميائية السودانية (SCI)</h1>
+        <h2 className="text-xl">تقرير المخزن والجرد - {TYPES.find(t => t.id === activeTab)?.label}</h2>
+        <p className="text-sm">تاريخ التقرير: {new Date().toLocaleString('ar-SD')}</p>
+      </div>
+
+      <div className="flex justify-between items-center bg-white p-4 rounded-2xl shadow-sm border border-gray-100 no-print">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">🏢 مستودع SCI والتحكم</h1>
           <p className="text-sm text-gray-500 mt-1">إدارة المخزون حسب التصنيف المؤسسي</p>
         </div>
-        <div className="flex gap-2 bg-gray-100 p-1 rounded-xl">
+        <div className="flex gap-2 items-center">
+          <button onClick={() => window.print()} className="btn-secondary flex items-center gap-2">
+            <span>🖨️</span> طباعة التقرير
+          </button>
+          <div className="flex gap-2 bg-gray-100 p-1 rounded-xl">
           <button onClick={() => setViewMode('PRODUCT')}
             className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${viewMode === 'PRODUCT' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
             عرض حسب النوع

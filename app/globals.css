@@ -68,8 +68,66 @@
   }
 }
 
-/* Print styles for invoices */
+/* Print styles for reports and invoices */
 @media print {
-  .no-print { display: none !important; }
-  body { font-size: 12px; }
+  .no-print, 
+  aside, 
+  nav, 
+  button,
+  .btn-primary,
+  .btn-secondary,
+  .input-field,
+  header { 
+    display: none !important; 
+  }
+
+  body { 
+    background: white !important;
+    font-size: 10pt;
+    margin: 0;
+    padding: 0;
+    color: black !important;
+  }
+
+  .card {
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+  }
+
+  main {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+
+  table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+  }
+
+  th, td {
+    border-bottom: 1px solid #eee !important;
+    padding: 4pt !important;
+  }
+
+  .print-header {
+    display: block !important;
+    text-align: center;
+    margin-bottom: 20pt;
+    border-bottom: 2pt solid #333;
+    padding-bottom: 10pt;
+  }
+
+  .status-badge-green, 
+  .status-badge-red, 
+  .status-badge-yellow {
+    border: 1px solid #ccc !important;
+    background: transparent !important;
+    color: black !important;
+  }
+}
+
+.print-header {
+  display: none;
 }
