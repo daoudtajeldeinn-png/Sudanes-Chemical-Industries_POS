@@ -13,9 +13,14 @@ export async function PUT(req, { params }) {
     const { id } = params;
     const body = await req.json();
     
-    // If updating password, it will be hashed by the pre-save hook in User model
-    const updatedUser = await User.findByIdAndUpdate(id, body, { new: true });
-    return NextResponse.json({ user: updatedUser });
+    // To trigger the pre-save password hashing hook, we must use .save() instead of findByIdAndUpdate
+    const userToUpdate = await User.findById(id);
+    if (!userToUpdate) return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    
+    Object.assign(userToUpdate, body);
+    await userToUpdate.save();
+    
+    return NextResponse.json({ user: userToUpdate });
   } catch (err) { return NextResponse.json({ error: err.message }, { status: 400 }); }
 }
 
