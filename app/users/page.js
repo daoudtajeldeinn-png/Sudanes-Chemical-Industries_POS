@@ -114,7 +114,7 @@ export default function UsersPage() {
               </div>
               <div>
                 <label className="block text-xs mb-1">كلمة المرور {modal === 'edit' && '(اتركها فارغة للتجاوز)'}</label>
-                <input type="password" Name="passwordHash" className="input-field" onChange={e => setForm({...form, passwordHash: e.target.value})} />
+                <input type="password" name="passwordHash" className="input-field" onChange={e => setForm({...form, passwordHash: e.target.value})} />
               </div>
               <div>
                 <label className="block text-xs mb-1">الصلاحية (الدور الوظيفي) *</label>
