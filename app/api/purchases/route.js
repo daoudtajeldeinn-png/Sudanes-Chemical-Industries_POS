@@ -72,12 +72,14 @@ export async function POST(req) {
         if (batch) {
           batch.currentQty += item.quantity;
           batch.purchasePrice = item.unitCost;
+          if (item.productionDate) batch.productionDate = new Date(item.productionDate);
           await batch.save({ session });
         } else {
           batch = await Batch.create([{
             batchNumber: item.batchNumber,
             product: item.product,
             warehouse: body.warehouse,
+            productionDate: item.productionDate ? new Date(item.productionDate) : null,
             expiryDate: new Date(item.expiryDate),
             initialQty: item.quantity,
             currentQty: item.quantity,
