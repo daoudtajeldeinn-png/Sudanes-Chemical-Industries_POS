@@ -115,14 +115,16 @@ export async function GET() {
       { supplierCode: 'SUPP-002', supplierName: 'مصنع النيل للمواد الكيميائية', phone: '+249912345678', city: 'الخرطوم', country: 'Sudan', isActive: true },
       { upsert: true, new: true });
 
-    // Products (Pharmaceutical)
+    // Products (Specific SCI Pharmaceuticals)
     const products = [
-      { productCode: 'PHAR-001', productName: 'Aspirin 100mg', productNameAr: 'أسبرين 100 ملجم', category: cats['Analgesics'], unit: units['PCS'], costPrice: 50, wholesalePrice: 70, retailPrice: 100, taxRate: 0, minStock: 100 },
-      { productCode: 'PHAR-002', productName: 'Paracetamol 500mg', productNameAr: 'باراسيتامول 500 ملجم', category: cats['Antipyretics'], unit: units['PCS'], costPrice: 30, wholesalePrice: 45, retailPrice: 60, taxRate: 0, minStock: 200 },
-      { productCode: 'PHAR-003', productName: 'Amoxicillin 500mg', productNameAr: 'أموكسيسيلين 500 ملجم', category: cats['Antibiotics'], unit: units['BOX'], costPrice: 1200, wholesalePrice: 1500, retailPrice: 1800, taxRate: 0, minStock: 20 },
-      { productCode: 'PHAR-004', productName: 'Vitamin C 1000mg', productNameAr: 'فيتامين سي 1000 ملجم', category: cats['Vitamins'], unit: units['BOX'], costPrice: 1500, wholesalePrice: 1800, retailPrice: 2200, taxRate: 0, minStock: 30 },
+      { productCode: 'SCI-001', productName: 'Asprona 100mg', productNameAr: 'اسبرونا 100ملجم', category: cats['Analgesics'], unit: units['PCS'], costPrice: 50, wholesalePrice: 70, retailPrice: 100, taxRate: 0, minStock: 100 },
+      { productCode: 'SCI-002', productName: 'Asprona 300', productNameAr: 'اسبرونا 300', category: cats['Analgesics'], unit: units['PCS'], costPrice: 80, wholesalePrice: 110, retailPrice: 150, taxRate: 0, minStock: 100 },
+      { productCode: 'SCI-003', productName: 'Asprona 75', productNameAr: 'اسبرونا 75', category: cats['Analgesics'], unit: units['PCS'], costPrice: 40, wholesalePrice: 55, retailPrice: 80, taxRate: 0, minStock: 100 },
+      { productCode: 'SCI-004', productName: 'Potassium Citrate Eff. 16%', productNameAr: 'سترات البوتاسيم الفوارة 16%', category: cats['Vitamins'], unit: units['PCS'], costPrice: 150, wholesalePrice: 200, retailPrice: 250, taxRate: 0, minStock: 50 },
+      { productCode: 'SCI-005', productName: 'Trichocid 500mg', productNameAr: 'ترايكوسيد 500 ملجم Trichocid500mg', category: cats['Antibiotics'], unit: units['BOX'], costPrice: 800, wholesalePrice: 1100, retailPrice: 1400, taxRate: 0, minStock: 30 },
+      { productCode: 'SCI-006', productName: 'Parmol 500mg', productNameAr: 'بارمول 500ملجم', category: cats['Antipyretics'], unit: units['PCS'], costPrice: 30, wholesalePrice: 45, retailPrice: 60, taxRate: 0, minStock: 200 },
+      { productCode: 'SCI-007', productName: 'Povidin Iodine 10%', productNameAr: 'بوفيدين ايودين', category: cats['Dermatologicals'], unit: units['BOX'], costPrice: 1200, wholesalePrice: 1600, retailPrice: 2000, taxRate: 0, minStock: 50 },
       { productCode: 'RAW-001', productName: 'Talc Powder', productNameAr: 'بودرة تالك', category: cats['Raw Materials'], unit: units['KG'], costPrice: 25, wholesalePrice: 35, retailPrice: 45, currency: 'USD', exchangeRate: 600, taxRate: 0, minStock: 500 },
-      { productCode: 'PACK-001', productName: 'Glass Bottle 100ml', productNameAr: 'عبوة زجاجية 100 مل', category: cats['Packaging'], unit: units['BOX'], costPrice: 500, wholesalePrice: 700, retailPrice: 1000, taxRate: 0, minStock: 1000 },
     ];
 
     for (const p of products) {
