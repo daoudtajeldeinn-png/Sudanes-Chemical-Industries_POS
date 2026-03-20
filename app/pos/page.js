@@ -37,7 +37,7 @@ export default function POSPage() {
      p.productName?.toLowerCase().includes(search.toLowerCase()) ||
      p.productCode?.toLowerCase().includes(search.toLowerCase()) ||
      p.barcode?.includes(search)) &&
-    p.isActive && p.productType === 'FINISHED_GOOD'
+    p.isActive && (p.productType === 'FINISHED_GOOD' || !p.productType)
   );
 
   const addToCart = (product) => {
