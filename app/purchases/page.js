@@ -177,26 +177,47 @@ export default function PurchasesPage() {
                 ) : (
                   <div className="space-y-2">
                     {form.items.map((item, i) => (
-                      <div key={i} className="grid grid-cols-12 gap-2 items-center bg-gray-50 rounded-xl p-3">
-                        <div className="col-span-5">
-                          <select value={item.product} onChange={e => handleProductSelect(i, e.target.value)} className="input-field text-sm">
-                            <option value="">-- اختر المنتج --</option>
-                            {products.map(p => <option key={p._id} value={p._id}>{p.productNameAr || p.productName} ({p.productCode})</option>)}
-                          </select>
+                     <div key={i} className="bg-gray-50 rounded-xl p-4 border border-gray-100 space-y-3">
+                        <div className="grid grid-cols-12 gap-3 items-center">
+                          <div className="col-span-11">
+                            <select value={item.product} onChange={e => handleProductSelect(i, e.target.value)} className="input-field text-sm">
+                              <option value="">-- اختر المنتج --</option>
+                              {products.map(p => <option key={p._id} value={p._id}>{p.productNameAr || p.productName} ({p.productCode})</option>)}
+                            </select>
+                          </div>
+                          <div className="col-span-1 text-center">
+                            <button onClick={() => removeItem(i)} className="text-red-400 hover:text-red-600 text-lg">✕</button>
+                          </div>
                         </div>
-                        <div className="col-span-2">
-                          <input type="number" min="0.01" step="0.01" placeholder="الكمية" value={item.quantity}
-                            onChange={e => updateItem(i, 'quantity', parseFloat(e.target.value) || 0)} className="input-field text-sm text-center" />
+                        <div className="grid grid-cols-5 gap-3">
+                          <div>
+                            <label className="block text-[10px] text-gray-400 mb-1">رقم التشغيلة *</label>
+                            <input type="text" placeholder="B-123" value={item.batchNumber || ''}
+                              onChange={e => updateItem(i, 'batchNumber', e.target.value)} className="input-field text-xs px-2" />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] text-gray-400 mb-1">تاريخ الإنتاج</label>
+                            <input type="date" value={item.productionDate || ''}
+                              onChange={e => updateItem(i, 'productionDate', e.target.value)} className="text-xs border rounded-lg p-1 w-full" />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] text-gray-400 mb-1">تاريخ الانتهاء *</label>
+                            <input type="date" value={item.expiryDate || ''}
+                              onChange={e => updateItem(i, 'expiryDate', e.target.value)} className="text-xs border rounded-lg p-1 w-full" />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] text-gray-400 mb-1">الكمية</label>
+                            <input type="number" min="0.01" value={item.quantity}
+                              onChange={e => updateItem(i, 'quantity', parseFloat(e.target.value) || 0)} className="input-field text-xs px-1 text-center" />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] text-gray-400 mb-1">سعر الوحدة</label>
+                            <input type="number" min="0" value={item.unitCost}
+                              onChange={e => updateItem(i, 'unitCost', parseFloat(e.target.value) || 0)} className="input-field text-xs px-1 text-center" />
+                          </div>
                         </div>
-                        <div className="col-span-3">
-                          <input type="number" min="0" step="0.01" placeholder="سعر الوحدة" value={item.unitCost}
-                            onChange={e => updateItem(i, 'unitCost', parseFloat(e.target.value) || 0)} className="input-field text-sm text-center" />
-                        </div>
-                        <div className="col-span-1 text-center text-sm font-bold text-blue-600">
-                          {fmt(item.quantity * item.unitCost)}
-                        </div>
-                        <div className="col-span-1 text-center">
-                          <button onClick={() => removeItem(i)} className="text-red-400 hover:text-red-600 text-lg">✕</button>
+                        <div className="text-left text-xs font-bold text-blue-600 pr-2">
+                          الإجمالي: {fmt(item.quantity * item.unitCost)} SDG
                         </div>
                       </div>
                     ))}

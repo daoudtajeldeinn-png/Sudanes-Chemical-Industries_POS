@@ -4,6 +4,7 @@ const BatchSchema = new mongoose.Schema({
   batchNumber: { type: String, required: true },
   product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
   warehouse: { type: mongoose.Schema.Types.ObjectId, ref: 'Warehouse', required: true },
+  productionDate: { type: Date },
   expiryDate: { type: Date, required: true },
   initialQty: { type: Number, required: true },
   currentQty: { type: Number, required: true },
