@@ -19,6 +19,7 @@ const navItems = [
   { href: '/suppliers',  label: 'الموردون',      icon: '🤝', roles: ['مدير النظام', 'محاسب'] },
   { href: '/reports',    label: 'التقارير',      icon: '📈', roles: ['مدير النظام', 'محاسب'] },
   { href: '/settings',   label: 'الإعدادات',     icon: '⚙️', roles: ['مدير النظام'] },
+  { href: '/users',      label: 'المستخدمين',    icon: '👤', roles: ['مدير النظام'] },
 ];
 
 export default function Sidebar({ user }) {
