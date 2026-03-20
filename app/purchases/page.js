@@ -132,8 +132,27 @@ export default function PurchasesPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">رقم فاتورة المورد</label>
-                  <input type="text" value={form.supplierInvoice || ''} onChange={e => setForm(f => ({ ...f, supplierInvoice: e.target.value }))} className="input-field" placeholder="اختياري" />
+                  <label className="block text-sm font-medium text-gray-700 mb-1">تصنيف المشتريات *</label>
+                  <select value={form.purchaseCategory || 'RAW_MATERIAL'} onChange={e => setForm(f => ({ ...f, purchaseCategory: e.target.value }))} className="input-field">
+                    <option value="RAW_MATERIAL">مواد خام (فعالة/غير فعالة)</option>
+                    <option value="PACKAGING">مواد تعبئة وتغليف</option>
+                    <option value="FUEL">وقود (ديزل/بنزين)</option>
+                    <option value="FOOD">مواد غذائية</option>
+                    <option value="EXPENSE">مصاريف إدارية</option>
+                    <option value="OTHER">أخرى</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">العملة</label>
+                  <div className="flex gap-2">
+                    <select value={form.currency || 'SDG'} onChange={e => setForm(f => ({ ...f, currency: e.target.value }))} className="input-field w-1/2">
+                      <option value="SDG">جنية سوداني (SDG)</option>
+                      <option value="USD">دولار أمريكي (USD)</option>
+                    </select>
+                    {form.currency === 'USD' && (
+                      <input type="number" placeholder="سعر الصرف" value={form.exchangeRate || ''} onChange={e => setForm(f => ({ ...f, exchangeRate: parseFloat(e.target.value) || 1 }))} className="input-field w-1/2" />
+                    )}
+                  </div>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">طريقة الدفع</label>
