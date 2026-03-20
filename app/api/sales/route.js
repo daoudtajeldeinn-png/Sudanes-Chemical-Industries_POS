@@ -61,17 +61,31 @@ export async function POST(req) {
       const finalPrice = totalPrice + taxAmount;
       subTotal += finalPrice;
 
-      // 1. Manage Batch if provided
-      if (item.batchId) {
-        const batch = await Batch.findById(item.batchId).session(session);
-        if (!batch) throw new Error(`Batch not found: ${item.batchId}`);
-        if (batch.currentQty < item.quantity) {
-          throw new Error(`Insufficient stock in batch ${batch.batchNumber}: Available ${batch.currentQty}, Required ${item.quantity}`);
+      // 1. Manage Batch (Automatic FEFO if no batchId provided)
+      let batchId = item.batchId;
+      if (!batchId) {
+        // Find the soonest-to-expire batch with enough stock
+        const bestBatch = await Batch.findOne({ 
+          product: item.product, 
+          warehouse: body.warehouse, 
+          currentQty: { $gte: item.quantity },
+          status: 'Active'
+        }).sort({ expiryDate: 1 }).session(session);
+
+        if (!bestBatch) {
+          throw new Error(`ليست هناك كمية كافية من أي تشغيلة (Batch) نشطة للمنتج ${product.productCode}`);
         }
-        batch.currentQty -= item.quantity;
-        if (batch.currentQty <= 0) batch.status = 'Empty';
-        await batch.save({ session });
+        batchId = bestBatch._id;
       }
+
+      const batch = await Batch.findById(batchId).session(session);
+      if (!batch) throw new Error(`Batch not found: ${batchId}`);
+      if (batch.currentQty < item.quantity) {
+        throw new Error(`Insufficient stock in batch ${batch.batchNumber}: Available ${batch.currentQty}, Required ${item.quantity}`);
+      }
+      batch.currentQty -= item.quantity;
+      if (batch.currentQty <= 0) batch.status = 'Empty';
+      await batch.save({ session });
 
       items.push({
         ...item,
