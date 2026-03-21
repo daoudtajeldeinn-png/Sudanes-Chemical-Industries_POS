@@ -65,7 +65,7 @@ export default function WarehousesPage() {
         </button>
       </div>
 
-      {loading ? (
+      {loading && warehouses.length === 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[1, 2, 3].map(s => (
             <div key={s} className="bg-white p-5 rounded-xl shadow-sm border border-gray-100 animate-pulse">

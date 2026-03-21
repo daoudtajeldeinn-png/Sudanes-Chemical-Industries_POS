@@ -59,7 +59,7 @@ export default function SuppliersPage() {
               ))}</tr>
             </thead>
             <tbody className="divide-y">
-              {loading ? (
+              {loading && suppliers.length === 0 ? (
                 [1, 2, 3, 4, 5].map((skeleton) => (
                   <tr key={skeleton} className="animate-pulse border-b border-gray-50">
                     <td className="py-4 px-4"><div className="h-4 bg-gray-200 rounded w-16"></div></td>

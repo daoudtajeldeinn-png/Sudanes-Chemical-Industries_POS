@@ -158,7 +158,7 @@ export default function InventoryPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-50">
-            {loading ? (
+            {loading && stockData.length === 0 && batches.length === 0 ? (
               [1, 2, 3, 4, 5].map((skeleton) => (
                 <tr key={skeleton} className="animate-pulse">
                   <td className="px-5 py-4"><div className="h-4 bg-gray-200 rounded w-20"></div></td>

@@ -86,7 +86,7 @@ export default function TransfersPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-50">
-            {loading ? (
+            {loading && transfers.length === 0 ? (
               [1, 2, 3].map((skeleton) => (
                 <tr key={skeleton} className="animate-pulse border-b border-gray-50">
                   <td className="py-5 px-5"><div className="h-4 bg-gray-200 rounded w-24"></div></td>
