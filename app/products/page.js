@@ -98,7 +98,20 @@ export default function ProductsPage() {
             </thead>
             <tbody className="divide-y">
               {loading ? (
-                <tr><td colSpan="10" className="text-center py-16 text-gray-400">جاري التحميل...</td></tr>
+                [1, 2, 3, 4, 5, 6].map((skeleton) => (
+                  <tr key={skeleton} className="animate-pulse border-b border-gray-50">
+                    <td className="py-4 px-3"><div className="h-4 bg-gray-200 rounded w-16"></div></td>
+                    <td className="py-4 px-3"><div className="h-4 bg-gray-200 rounded w-24"></div></td>
+                    <td className="py-4 px-3"><div className="h-4 bg-gray-200 rounded w-48"></div></td>
+                    <td className="py-4 px-3"><div className="h-4 bg-gray-200 rounded w-24"></div></td>
+                    <td className="py-4 px-3"><div className="h-5 bg-gray-200 rounded-full w-12 text-center"></div></td>
+                    <td className="py-4 px-3"><div className="h-4 bg-gray-200 rounded w-16"></div></td>
+                    <td className="py-4 px-3"><div className="h-4 bg-gray-200 rounded w-16"></div></td>
+                    <td className="py-4 px-3"><div className="h-4 bg-gray-200 rounded w-16"></div></td>
+                    <td className="py-4 px-3"><div className="h-5 bg-gray-200 rounded-lg w-16"></div></td>
+                    <td className="py-4 px-3"><div className="h-4 bg-gray-200 rounded w-12"></div></td>
+                  </tr>
+                ))
               ) : products.length === 0 ? (
                 <tr><td colSpan="10" className="text-center py-16 text-gray-400">
                   <div className="text-4xl mb-2">📦</div>
