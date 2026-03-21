@@ -47,7 +47,11 @@ export default function InventoryPage() {
   };
 
   const filteredProducts = stockData.filter(p => {
-    if (p.productType !== activeTab) return false;
+    if (activeTab === 'FINISHED_GOOD') {
+      if (p.productType && p.productType !== 'FINISHED_GOOD') return false;
+    } else {
+      if (p.productType !== activeTab) return false;
+    }
     if (filter.search && !(
       p.productNameAr?.includes(filter.search) || 
       p.productName?.toLowerCase().includes(filter.search.toLowerCase()) ||
@@ -57,7 +61,11 @@ export default function InventoryPage() {
   });
 
   const filteredBatches = batches.filter(b => {
-    if (b.product?.productType !== activeTab) return false;
+    if (activeTab === 'FINISHED_GOOD') {
+      if (b.product?.productType && b.product?.productType !== 'FINISHED_GOOD') return false;
+    } else {
+      if (b.product?.productType !== activeTab) return false;
+    }
     if (filter.warehouse && b.warehouse?._id !== filter.warehouse) return false;
     if (filter.search && !(
       b.batchNumber?.includes(filter.search) || 
