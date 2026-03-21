@@ -11,12 +11,13 @@ export default function WarehousesPage() {
   const [formData, setFormData] = useState({ warehouseName: '', location: '', isDefault: false });
 
   useEffect(() => {
-    fetchWarehouses();
+    fetchWarehouses(true);
   }, []);
 
-  const fetchWarehouses = async () => {
+  const fetchWarehouses = async (showLoader = false) => {
+    if (showLoader) setLoading(true);
     try {
-      const res = await fetch('/api/warehouses');
+      const res = await fetch('/api/warehouses', { cache: 'no-store' });
       const data = await res.json();
       setWarehouses(data.warehouses || []);
     } catch (err) {

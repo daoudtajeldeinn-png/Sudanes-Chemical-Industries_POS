@@ -16,16 +16,17 @@ export default function InventoryPage() {
   const [warehouses, setWarehouses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('FINISHED_GOOD');
-  const [viewMode, setViewMode] = useState('PRODUCT'); // 'PRODUCT' or 'BATCH'
+  const [viewMode, setViewMode] = useState('TABLE'); // 'TABLE', 'BATCH', 'GRID' (Shapes)
   const [filter, setFilter] = useState({ warehouse: '', search: '' });
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
-    loadData();
+    loadData(true);
   }, []);
 
-  const loadData = async () => {
+  const loadData = async (showLoader = false) => {
+    if (showLoader) setLoading(true);
     try {
       const [pRes, wRes, bRes] = await Promise.all([
         fetch('/api/products', { cache: 'no-store' }),
@@ -99,9 +100,13 @@ export default function InventoryPage() {
             <span>🖨️</span> طباعة التقرير
           </button>
           <div className="flex gap-2 bg-gray-100 p-1 rounded-xl">
-          <button onClick={() => setViewMode('PRODUCT')}
-            className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${viewMode === 'PRODUCT' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
-            عرض حسب النوع
+          <button onClick={() => setViewMode('TABLE')}
+            className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${viewMode === 'TABLE' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
+            📑 جدول
+          </button>
+          <button onClick={() => setViewMode('GRID')}
+            className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${viewMode === 'GRID' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
+            🖼️ أشكال
           </button>
           <button onClick={() => setViewMode('BATCH')}
             className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${viewMode === 'BATCH' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
@@ -137,7 +142,7 @@ export default function InventoryPage() {
         <table className="w-full text-right border-collapse">
           <thead>
             <tr className="bg-gray-50 border-b border-gray-100 font-bold text-gray-700">
-              {viewMode === 'PRODUCT' ? (
+              {viewMode === 'TABLE' ? (
                 <>
                   <th className="px-5 py-4 text-xs font-bold uppercase tracking-wider">كود الصنف</th>
                   <th className="px-5 py-4 text-xs font-bold uppercase tracking-wider">اسم المادة/المنتج</th>
@@ -145,7 +150,7 @@ export default function InventoryPage() {
                   <th className="px-5 py-4 text-xs font-bold uppercase tracking-wider text-center">العملة الأصلية</th>
                   <th className="px-5 py-4 text-xs font-bold uppercase tracking-wider text-center">الحالة</th>
                 </>
-              ) : (
+              ) : viewMode === 'BATCH' ? (
                 <>
                   <th className="px-5 py-4 text-xs font-bold uppercase tracking-wider">رقم التشغيلة</th>
                   <th className="px-5 py-4 text-xs font-bold uppercase tracking-wider">الصنف</th>
@@ -154,7 +159,7 @@ export default function InventoryPage() {
                   <th className="px-5 py-4 text-xs font-bold uppercase tracking-wider text-center">الكمية</th>
                   <th className="px-5 py-4 text-xs font-bold uppercase tracking-wider text-center">المستودع</th>
                 </>
-              )}
+              ) : null}
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-50">
@@ -172,7 +177,7 @@ export default function InventoryPage() {
                   {viewMode === 'BATCH' && <td className="px-5 py-4"><div className="h-4 bg-gray-200 rounded w-16"></div></td>}
                 </tr>
               ))
-            ) : viewMode === 'PRODUCT' ? (
+            ) : viewMode === 'TABLE' ? (
               filteredProducts.map(p => (
                 <tr key={p._id} className="hover:bg-blue-50/30 transition-colors group">
                   <td className="px-5 py-4 text-sm font-mono text-blue-600 font-medium">{p.productCode}</td>
@@ -197,7 +202,7 @@ export default function InventoryPage() {
                   </td>
                 </tr>
               ))
-            ) : (
+            ) : viewMode === 'BATCH' ? (
               filteredBatches.map(b => {
                 const isNearExpiry = new Date(b.expiryDate) < new Date(Date.now() + 90 * 24 * 60 * 60 * 1000);
                 const isExpired = new Date(b.expiryDate) < new Date();
@@ -219,11 +224,35 @@ export default function InventoryPage() {
                   </tr>
                 );
               })
+            ) : (
+                <tr>
+                  <td colSpan={10} className="p-6">
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+                      {filteredProducts.map(p => (
+                        <div key={p._id} className="bg-white rounded-2xl p-4 border-2 border-gray-100 hover:border-blue-400 hover:shadow-lg transition-all text-right">
+                          <div className="flex justify-between items-start mb-2">
+                            <span className="badge-blue text-[10px]">{p.productCode}</span>
+                            <span className={`text-[10px] font-bold ${(p.stock || 0) <= p.minStock ? 'text-red-500' : 'text-green-600'}`}>
+                              {fmt(p.stock)} {p.unitCode || p.unit?.unitCode}
+                            </span>
+                          </div>
+                          <div className="font-bold text-gray-900 text-sm h-10 overflow-hidden line-clamp-2 leading-tight mb-2">
+                            {p.productNameAr || p.productName}
+                          </div>
+                          <div className="text-blue-600 font-bold font-mono text-sm pt-2 border-t">
+                            {fmt(p.retailPrice)} <span className="text-[10px]">SDG</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </td>
+                </tr>
             )}
-            {!loading && (viewMode === 'PRODUCT' ? filteredProducts : filteredBatches).length === 0 && (
+            {!loading && (viewMode === 'BATCH' ? filteredBatches : filteredProducts).length === 0 && (
               <tr><td colSpan={10} className="text-center py-20 text-gray-400 font-bold">لا توجد مواد ضمن هذا التصنيف حالياً</td></tr>
             )}
           </tbody>
+
         </table>
       </div>
     </div>

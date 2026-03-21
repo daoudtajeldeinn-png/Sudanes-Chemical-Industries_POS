@@ -15,15 +15,15 @@ export default function PurchasesPage() {
   const [modal, setModal] = useState(false);
   const [form, setForm] = useState({ paymentMethod: 'CASH', status: 'PAID', items: [] });
 
-  const load = () => {
-    setLoading(true);
+  const load = (showLoader = false) => {
+    if (showLoader) setLoading(true);
     const params = new URLSearchParams();
     if (from) params.set('from', from);
     if (to) params.set('to', to);
     fetch(`/api/purchases?${params}`, { cache: 'no-store' }).then(r => r.json()).then(d => { setPurchases(d.purchases || []); setLoading(false); });
   };
 
-  useEffect(() => { load(); }, [from, to]);
+  useEffect(() => { load(purchases.length === 0); }, [from, to]);
   useEffect(() => {
     setIsClient(true);
     fetch('/api/products', { cache: 'no-store' }).then(r => r.json()).then(d => setProducts(d.products || []));

@@ -13,16 +13,17 @@ export default function ProductsPage() {
   const [modal, setModal] = useState(null);
   const [form, setForm] = useState({});
   const [warehouses, setWarehouses] = useState([]);
+  const [viewMode, setViewMode] = useState('TABLE'); // 'TABLE' or 'GRID'
 
-  const load = () => {
-    setLoading(true);
+  const load = (showLoader = false) => {
+    if (showLoader) setLoading(true);
     const params = new URLSearchParams();
     if (search) params.set('q', search);
     if (catFilter) params.set('category', catFilter);
     fetch(`/api/products?${params}`, { cache: 'no-store' }).then(r => r.json()).then(d => { setProducts(d.products || []); setLoading(false); });
   };
 
-  useEffect(() => { load(); }, [search, catFilter]);
+  useEffect(() => { load(products.length === 0); }, [search, catFilter]);
   useEffect(() => {
     fetch('/api/categories').then(r => r.json()).then(d => setCategories(d.categories || []));
     fetch('/api/units').then(r => r.json()).then(d => setUnits(d.units || []));
@@ -68,11 +69,23 @@ export default function ProductsPage() {
         <div className="flex flex-col gap-2">
           <BackButton />
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">📦 المنتجات</h1>
-            <p className="text-sm text-gray-500 mt-1">{products.length} منتج</p>
+            <h1 className="text-2xl font-bold text-gray-900">📦 قائمة الأصناف (المنتجات)</h1>
+            <p className="text-sm text-gray-500 mt-1">{products.length} صنف / شكل</p>
           </div>
         </div>
-        <button onClick={openAdd} className="btn-primary">+ إضافة منتج</button>
+        <div className="flex gap-2">
+          <div className="flex bg-gray-100 p-1 rounded-xl">
+            <button onClick={() => setViewMode('TABLE')}
+              className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${viewMode === 'TABLE' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
+              📑 جدول
+            </button>
+            <button onClick={() => setViewMode('GRID')}
+              className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${viewMode === 'GRID' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
+              🖼️ أشكال
+            </button>
+          </div>
+          <button onClick={openAdd} className="btn-primary">+ إضافة منتج</button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -86,68 +99,95 @@ export default function ProductsPage() {
       </div>
 
       {/* Table */}
-      <div className="card p-0 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b">
-              <tr>
-                {['الكود','الباركود','الاسم','الفئة','الوحدة','سعر التكلفة','سعر الجملة','سعر التجزئة','المخزون',''].map((h,i) => (
-                  <th key={i} className="text-right py-3 px-3 font-medium text-gray-600 whitespace-nowrap">{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y">
-              {loading && products.length === 0 ? (
-                [1, 2, 3, 4, 5, 6].map((skeleton) => (
-                  <tr key={skeleton} className="animate-pulse border-b border-gray-50">
-                    <td className="py-4 px-3"><div className="h-4 bg-gray-200 rounded w-16"></div></td>
-                    <td className="py-4 px-3"><div className="h-4 bg-gray-200 rounded w-24"></div></td>
-                    <td className="py-4 px-3"><div className="h-4 bg-gray-200 rounded w-48"></div></td>
-                    <td className="py-4 px-3"><div className="h-4 bg-gray-200 rounded w-24"></div></td>
-                    <td className="py-4 px-3"><div className="h-5 bg-gray-200 rounded-full w-12 text-center"></div></td>
-                    <td className="py-4 px-3"><div className="h-4 bg-gray-200 rounded w-16"></div></td>
-                    <td className="py-4 px-3"><div className="h-4 bg-gray-200 rounded w-16"></div></td>
-                    <td className="py-4 px-3"><div className="h-4 bg-gray-200 rounded w-16"></div></td>
-                    <td className="py-4 px-3"><div className="h-5 bg-gray-200 rounded-lg w-16"></div></td>
-                    <td className="py-4 px-3"><div className="h-4 bg-gray-200 rounded w-12"></div></td>
-                  </tr>
-                ))
-              ) : products.length === 0 ? (
-                <tr><td colSpan="10" className="text-center py-16 text-gray-400">
-                  <div className="text-4xl mb-2">📦</div>
-                  لا توجد منتجات — اضغط "إضافة منتج" أو أضف بيانات تجريبية من الإعدادات
-                </td></tr>
-              ) : products.map(p => (
-                <tr key={p._id} className="hover:bg-gray-50">
-                  <td className="py-3 px-3 font-mono text-blue-600 text-xs whitespace-nowrap">{p.productCode}</td>
-                  <td className="py-3 px-3 font-mono text-gray-400 text-xs">{p.barcode || '-'}</td>
-                  <td className="py-3 px-3">
-                    <div className="font-medium text-gray-900">{p.productNameAr || p.productName}</div>
-                    {p.productNameAr && <div className="text-gray-400 text-xs">{p.productName}</div>}
-                  </td>
-                  <td className="py-3 px-3 text-gray-600 whitespace-nowrap">{p.category?.categoryNameAr || p.category?.categoryName || '-'}</td>
-                  <td className="py-3 px-3 whitespace-nowrap"><span className="badge-blue">{p.unit?.unitCode || '-'}</span></td>
-                  <td className="py-3 px-3 text-gray-600">{fmt(p.costPrice)}</td>
-                  <td className="py-3 px-3 text-gray-600">{fmt(p.wholesalePrice)}</td>
-                  <td className="py-3 px-3 font-semibold text-blue-600">{fmt(p.retailPrice)}</td>
-                  <td className="py-3 px-3 whitespace-nowrap">
-                    <span className={`font-medium ${(p.stock || 0) <= p.minStock ? 'text-red-600' : 'text-green-600'}`}>
-                      {fmt(p.stock || 0)}
-                    </span>
-                    {(p.stock || 0) <= p.minStock && <span className="badge-red mr-1 text-xs">منخفض</span>}
-                  </td>
-                  <td className="py-3 px-3">
-                    <div className="flex gap-2">
-                      <button onClick={() => openEdit(p)} className="text-blue-600 hover:text-blue-800 text-xs font-medium">تعديل</button>
-                      <button onClick={() => handleDelete(p._id)} className="text-red-500 hover:text-red-700 text-xs">حذف</button>
-                    </div>
-                  </td>
+      {/* Content */}
+      {viewMode === 'TABLE' ? (
+        <div className="card p-0 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm font-arabic">
+              <thead className="bg-gray-50 border-b">
+                <tr>
+                  {['الكود','الباركود','الاسم','الفئة','الوحدة','سعر التكلفة','سعر الجملة','سعر التجزئة','المخزون',''].map((h,i) => (
+                    <th key={i} className="text-right py-3 px-3 font-medium text-gray-600 whitespace-nowrap">{h}</th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y">
+                {loading && products.length === 0 ? (
+                  [1, 2, 3, 4, 5, 6].map((skeleton) => (
+                    <tr key={skeleton} className="animate-pulse border-b border-gray-50">
+                      <td className="py-4 px-3"><div className="h-4 bg-gray-200 rounded w-16"></div></td>
+                      <td className="py-4 px-3"><div className="h-4 bg-gray-200 rounded w-24"></div></td>
+                      <td className="py-4 px-3"><div className="h-4 bg-gray-200 rounded w-48"></div></td>
+                      <td className="py-4 px-3"><div className="h-4 bg-gray-200 rounded w-24"></div></td>
+                      <td className="py-4 px-3"><div className="h-5 bg-gray-200 rounded-full w-12 text-center"></div></td>
+                      <td className="py-4 px-3"><div className="h-4 bg-gray-200 rounded w-16"></div></td>
+                      <td className="py-4 px-3"><div className="h-4 bg-gray-200 rounded w-16"></div></td>
+                      <td className="py-4 px-3"><div className="h-4 bg-gray-200 rounded w-16"></div></td>
+                      <td className="py-4 px-3"><div className="h-5 bg-gray-200 rounded-lg w-16"></div></td>
+                      <td className="py-4 px-3"><div className="h-4 bg-gray-200 rounded w-12"></div></td>
+                    </tr>
+                  ))
+                ) : products.length === 0 ? (
+                  <tr><td colSpan="10" className="text-center py-16 text-gray-400">
+                    <div className="text-4xl mb-2">📦</div>
+                    لا توجد منتجات — اضغط "إضافة منتج" أو أضف بيانات تجريبية من الإعدادات
+                  </td></tr>
+                ) : products.map(p => (
+                  <tr key={p._id} className="hover:bg-gray-50">
+                    <td className="py-3 px-3 font-mono text-blue-600 text-xs whitespace-nowrap">{p.productCode}</td>
+                    <td className="py-3 px-3 font-mono text-gray-400 text-xs">{p.barcode || '-'}</td>
+                    <td className="py-3 px-3">
+                      <div className="font-medium text-gray-900">{p.productNameAr || p.productName}</div>
+                      {p.productNameAr && <div className="text-gray-400 text-xs">{p.productName}</div>}
+                    </td>
+                    <td className="py-3 px-3 text-gray-600 whitespace-nowrap">{p.category?.categoryNameAr || p.category?.categoryName || '-'}</td>
+                    <td className="py-3 px-3 whitespace-nowrap"><span className="badge-blue">{p.unit?.unitCode || '-'}</span></td>
+                    <td className="py-3 px-3 text-gray-600 font-mono">{fmt(p.costPrice)}</td>
+                    <td className="py-3 px-3 text-gray-600 font-mono">{fmt(p.wholesalePrice)}</td>
+                    <td className="py-3 px-3 font-semibold text-blue-600 font-mono">{fmt(p.retailPrice)}</td>
+                    <td className="py-3 px-3 whitespace-nowrap">
+                      <span className={`font-medium font-mono ${(p.stock || 0) <= p.minStock ? 'text-red-600' : 'text-green-600'}`}>
+                        {fmt(p.stock || 0)}
+                      </span>
+                      {(p.stock || 0) <= p.minStock && <span className="badge-red mr-1 text-xs">منخفض</span>}
+                    </td>
+                    <td className="py-3 px-3">
+                      <div className="flex gap-2">
+                        <button onClick={() => openEdit(p)} className="text-blue-600 hover:text-blue-800 text-xs font-medium">تعديل</button>
+                        <button onClick={() => handleDelete(p._id)} className="text-red-500 hover:text-red-700 text-xs">حذف</button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+          {products.map(p => (
+            <div key={p._id} className="bg-white rounded-2xl p-4 border-2 border-gray-100 hover:border-blue-400 hover:shadow-lg transition-all cursor-default">
+              <div className="flex justify-between items-start mb-2">
+                <span className="badge-blue text-[10px]">{p.productCode}</span>
+                <span className={`text-[10px] font-bold ${p.stock <= p.minStock ? 'text-red-500' : 'text-green-600'}`}>
+                  {fmt(p.stock)} {p.unit?.unitCode}
+                </span>
+              </div>
+              <div className="font-bold text-gray-900 text-sm h-10 overflow-hidden line-clamp-2 leading-tight mb-2">
+                {p.productNameAr || p.productName}
+              </div>
+              <div className="flex items-center justify-between mt-auto pt-2 border-t">
+                <div className="text-blue-600 font-bold font-mono">{fmt(p.retailPrice)} <span className="text-[10px]">SDG</span></div>
+                <button onClick={() => openEdit(p)} className="p-1.5 text-gray-400 hover:text-blue-600 transition-colors">✏️</button>
+              </div>
+            </div>
+          ))}
+          {products.length === 0 && !loading && (
+            <div className="col-span-full py-20 text-center text-gray-400">لا توجد منتجات للعرض</div>
+          )}
+        </div>
+      )}
+
 
       {/* Modal */}
       {modal && (

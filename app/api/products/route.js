@@ -4,6 +4,8 @@ import Product from '@/models/Product';
 import ProductStock from '@/models/ProductStock';
 import { getAuthUser } from '@/lib/auth';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req) {
   try {
     const user = getAuthUser();
@@ -27,10 +29,17 @@ export async function GET(req) {
       .sort({ productName: 1 })
       .lean();
 
-    // Get stock for each product
-    const stocks = await ProductStock.find({ product: { $in: products.map(p => p._id) } }).lean();
-    const stockMap = {};
-    stocks.forEach(s => { stockMap[s.product.toString()] = (stockMap[s.product.toString()] || 0) + s.quantity; });
+    // Get stock for all products in one efficient step
+    const productIds = products.map(p => p._id);
+    const stocks = await ProductStock.aggregate([
+      { $match: { product: { $in: productIds } } },
+      { $group: { _id: '$product', total: { $sum: '$quantity' } } }
+    ]);
+
+    const stockMap = stocks.reduce((acc, curr) => {
+      acc[curr._id.toString()] = curr.total;
+      return acc;
+    }, {});
 
     const result = products.map(p => ({
       ...p,
@@ -40,6 +49,7 @@ export async function GET(req) {
     return NextResponse.json({ products: result });
   } catch (err) { return NextResponse.json({ error: err.message }, { status: 500 }); }
 }
+
 
 export async function POST(req) {
   try {

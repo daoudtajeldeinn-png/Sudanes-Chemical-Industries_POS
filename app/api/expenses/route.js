@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server';
+export const dynamic = 'force-dynamic';
+
 import connectDB from '@/lib/mongodb';
 import Expense, { ExpenseCategory } from '@/models/Expense';
 import { getAuthUser } from '@/lib/auth';

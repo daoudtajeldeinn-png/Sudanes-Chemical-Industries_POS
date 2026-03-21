@@ -13,8 +13,8 @@ export default function ExpensesPage() {
   const [modal, setModal] = useState(false);
   const [form, setForm] = useState({ paymentMethod: 'CASH', amount: '' });
 
-  const load = () => {
-    setLoading(true);
+  const load = (showLoader = false) => {
+    if (showLoader) setLoading(true);
     const params = new URLSearchParams();
     if (from) params.set('from', from);
     if (to) params.set('to', to);
@@ -26,7 +26,7 @@ export default function ExpensesPage() {
   };
   useEffect(() => { 
     setIsClient(true);
-    load(); 
+    load(expenses.length === 0); 
   }, [from, to]);
 
   const handleSave = async () => {

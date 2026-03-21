@@ -10,8 +10,8 @@ export default function SalesPage() {
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
 
-  const load = () => {
-    setLoading(true);
+  const load = (showLoader = false) => {
+    if (showLoader) setLoading(true);
     const params = new URLSearchParams();
     if (from) params.set('from', from);
     if (to) params.set('to', to);
@@ -19,7 +19,7 @@ export default function SalesPage() {
   };
   useEffect(() => { 
     setIsClient(true);
-    load(); 
+    load(sales.length === 0); 
   }, [from, to]);
 
   const fmt = (n) => new Intl.NumberFormat('ar-SD').format(Math.round(n || 0));
