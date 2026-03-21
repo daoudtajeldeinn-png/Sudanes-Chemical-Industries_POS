@@ -18,6 +18,7 @@ export default function InventoryPage() {
   const [activeTab, setActiveTab] = useState('FINISHED_GOOD');
   const [viewMode, setViewMode] = useState('PRODUCT'); // 'PRODUCT' or 'BATCH'
   const [filter, setFilter] = useState({ warehouse: '', search: '' });
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
