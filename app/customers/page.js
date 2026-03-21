@@ -11,13 +11,13 @@ export default function CustomersPage() {
   const [modal, setModal] = useState(null);
   const [form, setForm] = useState({});
 
-  const load = () => {
-    setLoading(true);
+  const load = (showLoader = false) => {
+    if (showLoader) setLoading(true);
     const params = search ? `?q=${search}` : '';
     fetch(`/api/customers${params}`, { cache: 'no-store' }).then(r => r.json()).then(d => { setCustomers(d.customers || []); setLoading(false); });
   };
 
-  useEffect(() => { load(); }, [search]);
+  useEffect(() => { load(customers.length === 0); }, [search]);
   useEffect(() => { fetch('/api/seed').catch(() => {}); }, []); // trigger groups load via a simple approach
 
   const openAdd = () => { setForm({ customerType: 'retail', creditLimit: 0 }); setModal('add'); };

@@ -10,12 +10,12 @@ export default function SuppliersPage() {
   const [modal, setModal] = useState(null);
   const [form, setForm] = useState({});
 
-  const load = () => {
-    setLoading(true);
+  const load = (showLoader = false) => {
+    if (showLoader) setLoading(true);
     const params = search ? `?q=${search}` : '';
     fetch(`/api/suppliers${params}`, { cache: 'no-store' }).then(r => r.json()).then(d => { setSuppliers(d.suppliers || []); setLoading(false); });
   };
-  useEffect(() => { load(); }, [search]);
+  useEffect(() => { load(suppliers.length === 0); }, [search]);
 
   const openAdd = () => { setForm({ country: 'Sudan' }); setModal('add'); };
   const openEdit = (s) => { setForm({ ...s }); setModal('edit'); };
