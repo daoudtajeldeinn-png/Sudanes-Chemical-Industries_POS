@@ -86,7 +86,20 @@ export default function TransfersPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-50">
-            {transfers.map(t => (
+            {loading ? (
+              [1, 2, 3].map((skeleton) => (
+                <tr key={skeleton} className="animate-pulse border-b border-gray-50">
+                  <td className="py-5 px-5"><div className="h-4 bg-gray-200 rounded w-24"></div></td>
+                  <td className="py-5 px-5"><div className="h-4 bg-gray-200 rounded w-24"></div></td>
+                  <td className="py-5 px-5"><div className="h-4 bg-gray-200 rounded w-32 mb-2"></div><div className="h-3 bg-gray-100 rounded w-16"></div></td>
+                  <td className="py-5 px-5"><div className="h-5 bg-gray-200 rounded-full w-20"></div></td>
+                  <td className="py-5 px-5"><div className="h-4 bg-gray-200 rounded w-20"></div></td>
+                  <td className="py-5 px-5"><div className="h-4 bg-gray-200 rounded w-16"></div></td>
+                </tr>
+              ))
+            ) : transfers.length === 0 ? (
+              <tr><td colSpan="6" className="text-center py-12 text-gray-400">لا توجد طلبات تحويل</td></tr>
+            ) : transfers.map(t => (
               <tr key={t._id} className="hover:bg-gray-50 transition-colors">
                 <td className="px-5 py-4 font-bold text-blue-800">{t.fromWarehouse?.warehouseName || '---'}</td>
                 <td className="px-5 py-4 font-bold text-green-800">{t.toWarehouse?.warehouseName || '---'}</td>

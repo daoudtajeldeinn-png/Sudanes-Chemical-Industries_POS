@@ -59,8 +59,19 @@ export default function SuppliersPage() {
               ))}</tr>
             </thead>
             <tbody className="divide-y">
-              {loading ? <tr><td colSpan="7" className="text-center py-12 text-gray-400">جاري التحميل...</td></tr>
-              : suppliers.length === 0 ? <tr><td colSpan="7" className="text-center py-12 text-gray-400">لا يوجد موردون</td></tr>
+              {loading ? (
+                [1, 2, 3, 4, 5].map((skeleton) => (
+                  <tr key={skeleton} className="animate-pulse border-b border-gray-50">
+                    <td className="py-4 px-4"><div className="h-4 bg-gray-200 rounded w-16"></div></td>
+                    <td className="py-4 px-4"><div className="h-4 bg-gray-200 rounded w-32"></div></td>
+                    <td className="py-4 px-4"><div className="h-4 bg-gray-200 rounded w-24"></div></td>
+                    <td className="py-4 px-4"><div className="h-4 bg-gray-200 rounded w-20"></div></td>
+                    <td className="py-4 px-4"><div className="h-4 bg-gray-200 rounded w-16"></div></td>
+                    <td className="py-4 px-4"><div className="h-4 bg-gray-200 rounded w-24"></div></td>
+                    <td className="py-4 px-4"><div className="h-4 bg-gray-200 rounded w-16"></div></td>
+                  </tr>
+                ))
+              ) : suppliers.length === 0 ? <tr><td colSpan="7" className="text-center py-12 text-gray-400">لا يوجد موردون</td></tr>
               : suppliers.map(s => (
                 <tr key={s._id} className="hover:bg-gray-50">
                   <td className="py-3 px-4 font-mono text-blue-600 text-xs">{s.supplierCode}</td>
