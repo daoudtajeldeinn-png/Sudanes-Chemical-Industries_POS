@@ -151,7 +151,19 @@ export default function InventoryPage() {
           </thead>
           <tbody className="divide-y divide-gray-50">
             {loading ? (
-              <tr><td colSpan={10} className="text-center py-20 text-gray-400 font-bold">جاري تحميل البيانات...</td></tr>
+              [1, 2, 3, 4, 5].map((skeleton) => (
+                <tr key={skeleton} className="animate-pulse">
+                  <td className="px-5 py-4"><div className="h-4 bg-gray-200 rounded w-20"></div></td>
+                  <td className="px-5 py-4">
+                    <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                    <div className="h-3 bg-gray-100 rounded w-1/2"></div>
+                  </td>
+                  <td className="px-5 py-4"><div className="h-4 bg-gray-200 rounded w-full"></div></td>
+                  <td className="px-5 py-4"><div className="h-4 bg-gray-200 rounded w-16 mx-auto"></div></td>
+                  <td className="px-5 py-4"><div className="h-6 bg-gray-200 rounded-full w-12 mx-auto"></div></td>
+                  {viewMode === 'BATCH' && <td className="px-5 py-4"><div className="h-4 bg-gray-200 rounded w-16"></div></td>}
+                </tr>
+              ))
             ) : viewMode === 'PRODUCT' ? (
               filteredProducts.map(p => (
                 <tr key={p._id} className="hover:bg-blue-50/30 transition-colors group">

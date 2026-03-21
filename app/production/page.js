@@ -212,7 +212,7 @@ export default function ProductionPage() {
                 <label className="block text-sm font-medium mb-1">المنتج النهائي *</label>
                 <select className="input-field" value={form.finishedProduct} onChange={e => setForm({...form, finishedProduct: e.target.value})}>
                   <option value="">اختر المنتج...</option>
-                  {products.filter(p => p.productType === 'FINISHED_GOOD').map(p => <option key={p._id} value={p._id}>{p.productNameAr}</option>)}
+                  {products.filter(p => p.productType === 'FINISHED_GOOD' || !p.productType).map(p => <option key={p._id} value={p._id}>{p.productNameAr}</option>)}
                 </select>
               </div>
               <div>
@@ -229,7 +229,7 @@ export default function ProductionPage() {
                         setForm({...form, ingredients: newIng});
                      }}>
                        <option value="">اختر مادة خام...</option>
-                       {products.filter(p => p.productType !== 'FINISHED_GOOD').map(p => <option key={p._id} value={p._id}>{p.productNameAr}</option>)}
+                       {products.filter(p => p.productType && p.productType !== 'FINISHED_GOOD').map(p => <option key={p._id} value={p._id}>{p.productNameAr}</option>)}
                      </select>
                      <input type="number" placeholder="الكمية" className="input-field w-32" value={ing.quantity} onChange={e => {
                         const newIng = [...form.ingredients];
@@ -306,7 +306,7 @@ export default function ProductionPage() {
                   <label className="block text-sm font-medium mb-1">المنتج النهائي *</label>
                   <select className="input-field" value={form.finishedProduct} onChange={e => setForm({...form, finishedProduct: e.target.value})}>
                     <option value="">اختر المنتج المُراد إنتاجه...</option>
-                    {products.filter(p => p.productType === 'FINISHED_GOOD').map(p => <option key={p._id} value={p._id}>{p.productNameAr}</option>)}
+                    {products.filter(p => p.productType === 'FINISHED_GOOD' || !p.productType).map(p => <option key={p._id} value={p._id}>{p.productNameAr}</option>)}
                   </select>
                 </div>
                 <div>
@@ -334,7 +334,7 @@ export default function ProductionPage() {
                         setForm({...form, ingredients: newIng});
                      }}>
                        <option value="">اختر مادة خام...</option>
-                       {products.filter(p => p.productType !== 'FINISHED_GOOD').map(p => <option key={p._id} value={p._id}>{p.productNameAr}</option>)}
+                       {products.filter(p => p.productType && p.productType !== 'FINISHED_GOOD').map(p => <option key={p._id} value={p._id}>{p.productNameAr}</option>)}
                      </select>
                      <input type="number" placeholder="الكمية" className="input-field w-32" value={ing.quantity} onChange={e => {
                         const newIng = [...form.ingredients];
