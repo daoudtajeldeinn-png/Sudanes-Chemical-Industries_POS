@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
+import BackButton from '@/components/BackButton';
 
 export default function ProductsPage() {
   const [products, setProducts] = useState([]);
@@ -64,9 +65,12 @@ export default function ProductsPage() {
   return (
     <div className="p-6 space-y-5">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">📦 المنتجات</h1>
-          <p className="text-sm text-gray-500 mt-1">{products.length} منتج</p>
+        <div className="flex flex-col gap-2">
+          <BackButton />
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">📦 المنتجات</h1>
+            <p className="text-sm text-gray-500 mt-1">{products.length} منتج</p>
+          </div>
         </div>
         <button onClick={openAdd} className="btn-primary">+ إضافة منتج</button>
       </div>

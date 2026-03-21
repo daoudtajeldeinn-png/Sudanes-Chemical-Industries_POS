@@ -1,8 +1,10 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import BackButton from '@/components/BackButton';
 
 export default function SalesPage() {
+  const [isClient, setIsClient] = useState(false);
   const [sales, setSales] = useState([]);
   const [loading, setLoading] = useState(true);
   const [from, setFrom] = useState('');
@@ -15,7 +17,10 @@ export default function SalesPage() {
     if (to) params.set('to', to);
     fetch(`/api/sales?${params}`).then(r => r.json()).then(d => { setSales(d.sales || []); setLoading(false); });
   };
-  useEffect(() => { load(); }, [from, to]);
+  useEffect(() => { 
+    setIsClient(true);
+    load(); 
+  }, [from, to]);
 
   const fmt = (n) => new Intl.NumberFormat('ar-SD').format(Math.round(n || 0));
   const totalRevenue = sales.filter(s => s.status !== 'CANCELLED').reduce((s, i) => s + (i.totalAmount || 0), 0);
@@ -28,13 +33,16 @@ export default function SalesPage() {
       <div className="print-header">
         <h1 className="text-2xl font-bold">الصناعات الكيميائية السودانية (SCI)</h1>
         <h2 className="text-xl">تقرير المبيعات</h2>
-        <p className="text-sm">بتاريخ: {new Date().toLocaleString('ar-SD')}</p>
+        <p className="text-sm">بتاريخ: {isClient ? new Date().toLocaleString('ar-SD') : ''}</p>
       </div>
 
       <div className="flex justify-between items-center no-print">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">🧾 المبيعات</h1>
-          <p className="text-sm text-gray-500 mt-1">عرض وإدارة فواتير المبيعات</p>
+        <div className="flex flex-col gap-2">
+          <BackButton />
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">🧾 المبيعات</h1>
+            <p className="text-sm text-gray-500 mt-1">عرض وإدارة فواتير المبيعات</p>
+          </div>
         </div>
         <div className="flex gap-3">
           <Link href="/pos" className="btn-primary">🛒 فاتورة جديدة</Link>

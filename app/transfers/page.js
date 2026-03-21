@@ -1,8 +1,10 @@
 'use client';
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
+import BackButton from '@/components/BackButton';
 
 export default function TransfersPage() {
+  const [isClient, setIsClient] = useState(false);
   const [transfers, setTransfers] = useState([]);
   const [warehouses, setWarehouses] = useState([]);
   const [products, setProducts] = useState([]);
@@ -28,7 +30,10 @@ export default function TransfersPage() {
     finally { setLoading(false); }
   };
 
-  useEffect(() => { loadData(); }, []);
+  useEffect(() => { 
+    setIsClient(true);
+    loadData(); 
+  }, []);
 
   const handleSaveTransfer = async () => {
     const res = await fetch('/api/transfers', {
@@ -57,9 +62,12 @@ export default function TransfersPage() {
   return (
     <div className="p-6 space-y-6" dir="rtl">
       <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">🚚 تحويلات المخازن</h1>
-          <p className="text-sm text-gray-500 mt-1">نقل المواد بين مستودعات المصنع رسمياً</p>
+        <div className="flex flex-col gap-2">
+          <BackButton />
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">🚚 تحويلات المخازن</h1>
+            <p className="text-sm text-gray-500 mt-1">نقل المواد بين مستودعات المصنع رسمياً</p>
+          </div>
         </div>
         <button onClick={() => { setForm({ items: [], fromWarehouse: warehouses[0]?._id, toWarehouse: warehouses[1]?._id }); setModal('add'); }} 
           className="btn-primary">+ طلب تحويل جديد</button>
@@ -96,7 +104,7 @@ export default function TransfersPage() {
                   </span>
                 </td>
                 <td className="px-5 py-4 text-xs text-gray-400">
-                  {t.createdAt ? new Date(t.createdAt).toLocaleDateString('ar-SD') : '---'}
+                  {isClient && t.createdAt ? new Date(t.createdAt).toLocaleDateString('ar-SD') : '---'}
                 </td>
                 <td className="px-5 py-4">
                   {t.status === 'PENDING' && (

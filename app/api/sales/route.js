@@ -26,7 +26,8 @@ export async function GET(req) {
     const sales = await Sale.find(filter)
       .populate('customer', 'customerName customerCode phone')
       .sort({ createdAt: -1 })
-      .limit(500);
+      .limit(500)
+      .lean();
     return NextResponse.json({ sales });
   } catch (err) { return NextResponse.json({ error: err.message }, { status: 500 }); }
 }

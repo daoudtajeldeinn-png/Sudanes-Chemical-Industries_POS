@@ -1,8 +1,10 @@
 'use client';
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
+import BackButton from '@/components/BackButton';
 
 export default function ExpensesPage() {
+  const [isClient, setIsClient] = useState(false);
   const [expenses, setExpenses] = useState([]);
   const [categories, setCategories] = useState([]);
   const [from, setFrom] = useState('');
@@ -22,7 +24,10 @@ export default function ExpensesPage() {
       setLoading(false);
     });
   };
-  useEffect(() => { load(); }, [from, to]);
+  useEffect(() => { 
+    setIsClient(true);
+    load(); 
+  }, [from, to]);
 
   const handleSave = async () => {
     if (!form.category || !form.amount) return toast.error('أدخل الفئة والمبلغ');
@@ -41,9 +46,12 @@ export default function ExpensesPage() {
   return (
     <div className="p-6 space-y-5">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">💸 المصروفات</h1>
-          <p className="text-sm text-gray-500 mt-1">{expenses.length} مصروف</p>
+        <div className="flex flex-col gap-2">
+          <BackButton />
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">💸 المصروفات</h1>
+            <p className="text-sm text-gray-500 mt-1">{expenses.length} مصروف</p>
+          </div>
         </div>
         <button onClick={() => setModal(true)} className="btn-primary">+ إضافة مصروف</button>
       </div>
@@ -78,7 +86,7 @@ export default function ExpensesPage() {
                   <td className="py-3 px-4 font-bold text-red-600">{fmt(e.amount)} SDG</td>
                   <td className="py-3 px-4 text-gray-600">{e.paymentMethod === 'CASH' ? 'نقدي' : e.paymentMethod === 'CARD' ? 'بطاقة' : 'تحويل'}</td>
                   <td className="py-3 px-4 text-gray-600 text-xs max-w-48 truncate">{e.description || e.notes || '-'}</td>
-                  <td className="py-3 px-4 text-gray-500 text-xs">{new Date(e.expenseDate).toLocaleDateString('ar-SD')}</td>
+                  <td className="py-3 px-4 text-gray-500 text-xs">{isClient ? new Date(e.expenseDate).toLocaleDateString('ar-SD') : ''}</td>
                 </tr>
               ))}
             </tbody>
@@ -99,8 +107,15 @@ export default function ExpensesPage() {
                 <select value={form.category || ''} onChange={e => setForm(f => ({ ...f, category: e.target.value }))} className="input-field">
                   <option value="">-- اختر الفئة --</option>
                   {categories.map(c => <option key={c._id} value={c._id}>{c.categoryName}</option>)}
+                  <option value="OTHER">أخرى (إضافة فئة جديدة غير المدرجة بالقائمة)</option>
                 </select>
               </div>
+              {form.category === 'OTHER' && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">اسم الفئة الجديدة *</label>
+                  <input type="text" placeholder="مثال: ضيافة، إصلاحات طارئة..." value={form.customCategoryName || ''} onChange={e => setForm(f => ({ ...f, customCategoryName: e.target.value }))} className="input-field" />
+                </div>
+              )}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">المبلغ *</label>
                 <input type="number" min="0" step="0.01" placeholder="0.00" value={form.amount} onChange={e => setForm(f => ({ ...f, amount: e.target.value }))} className="input-field text-xl text-center font-bold" />

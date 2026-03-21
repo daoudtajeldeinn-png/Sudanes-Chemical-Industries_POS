@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
+import BackButton from '@/components/BackButton';
 
 export default function SuppliersPage() {
   const [suppliers, setSuppliers] = useState([]);
@@ -42,7 +43,10 @@ export default function SuppliersPage() {
   return (
     <div className="p-6 space-y-5">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">🏭 الموردون</h1>
+        <div className="flex flex-col gap-2">
+          <BackButton />
+          <h1 className="text-2xl font-bold text-gray-900">🏭 الموردون</h1>
+        </div>
         <button onClick={openAdd} className="btn-primary">+ إضافة مورد</button>
       </div>
       <input type="text" placeholder="بحث..." className="input-field w-72" value={search} onChange={e => setSearch(e.target.value)} />

@@ -2,13 +2,16 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
+import BackButton from '@/components/BackButton';
 
 export default function SaleDetailPage() {
   const { id } = useParams();
   const [sale, setSale] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
+    setIsClient(true);
     fetch(`/api/sales/${id}`).then(r => r.json()).then(d => { setSale(d.sale); setLoading(false); });
   }, [id]);
 
@@ -21,9 +24,12 @@ export default function SaleDetailPage() {
 
   return (
     <div className="p-6 max-w-3xl mx-auto space-y-5">
-      <div className="flex items-center justify-between no-print">
-        <Link href="/sales" className="text-blue-600 hover:underline text-sm">← العودة للفواتير</Link>
-        <button onClick={() => window.print()} className="btn-secondary text-sm">🖨️ طباعة</button>
+      <div className="flex flex-col gap-2 no-print">
+        <BackButton />
+        <div className="flex items-center justify-between">
+          <Link href="/sales" className="text-blue-600 hover:underline text-sm">← العودة للفواتير (الرئيسية)</Link>
+          <button onClick={() => window.print()} className="btn-secondary text-sm">🖨️ طباعة</button>
+        </div>
       </div>
 
       <div className="card space-y-6" id="invoice">
@@ -36,7 +42,7 @@ export default function SaleDetailPage() {
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div className="space-y-2">
             <div className="flex gap-2"><span className="text-gray-500 w-28">رقم الفاتورة:</span><span className="font-mono font-bold text-blue-600">{sale.invoiceNumber}</span></div>
-            <div className="flex gap-2"><span className="text-gray-500 w-28">التاريخ:</span><span>{new Date(sale.invoiceDate).toLocaleDateString('ar-SD', { year: 'numeric', month: 'long', day: 'numeric' })}</span></div>
+            <div className="flex gap-2"><span className="text-gray-500 w-28">التاريخ:</span><span>{isClient ? new Date(sale.invoiceDate).toLocaleDateString('ar-SD', { year: 'numeric', month: 'long', day: 'numeric' }) : ''}</span></div>
             <div className="flex gap-2"><span className="text-gray-500 w-28">طريقة الدفع:</span><span>{payLabel[sale.paymentMethod] || sale.paymentMethod}</span></div>
             <div className="flex gap-2"><span className="text-gray-500 w-28">الحالة:</span><span className={sale.status === 'PAID' ? 'badge-green' : 'badge-yellow'}>{statusLabel[sale.status]}</span></div>
             <div className="flex gap-2"><span className="text-gray-500 w-28">الكاشير:</span><span>{sale.user?.fullName || '-'}</span></div>

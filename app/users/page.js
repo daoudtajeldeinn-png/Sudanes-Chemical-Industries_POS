@@ -1,10 +1,12 @@
 'use client';
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
+import BackButton from '@/components/BackButton';
 
 const ROLES = ['مدير النظام', 'مدير الإنتاج', 'أمين المخزن', 'مسؤول مبيعات', 'محاسب'];
 
 export default function UsersPage() {
+  const [isClient, setIsClient] = useState(false);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState(null);
@@ -20,7 +22,10 @@ export default function UsersPage() {
     finally { setLoading(false); }
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { 
+    setIsClient(true);
+    load(); 
+  }, []);
 
   const handleSave = async () => {
     const isEdit = modal === 'edit';
@@ -51,9 +56,12 @@ export default function UsersPage() {
   return (
     <div className="p-6 space-y-6" dir="rtl">
       <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">👥 إدارة المستخدمين والصلاحيات</h1>
-          <p className="text-sm text-gray-500 mt-1">التحكم في وصول الموظفين لأقسام النظام</p>
+        <div className="flex flex-col gap-2">
+          <BackButton />
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">👥 إدارة المستخدمين والصلاحيات</h1>
+            <p className="text-sm text-gray-500 mt-1">التحكم في وصول الموظفين لأقسام النظام</p>
+          </div>
         </div>
         <button onClick={() => { setForm({ roleName: 'مسؤول مبيعات', isActive: true }); setModal('add'); }} 
           className="btn-primary">+ إضافة موظف جديد</button>
@@ -85,7 +93,7 @@ export default function UsersPage() {
                   </span>
                 </td>
                 <td className="px-5 py-4 text-xs text-gray-400">
-                   {u.lastLogin ? new Date(u.lastLogin).toLocaleString('ar-SD') : 'لم يدخل بعد'}
+                   {isClient && u.lastLogin ? new Date(u.lastLogin).toLocaleString('ar-SD') : 'لم يدخل بعد'}
                 </td>
                 <td className="px-5 py-4 flex gap-2">
                   <button onClick={() => { setForm(u); setModal('edit'); }} className="text-blue-600 hover:underline">تعديل</button>

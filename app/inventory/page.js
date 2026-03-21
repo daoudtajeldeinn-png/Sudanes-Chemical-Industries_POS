@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
+import BackButton from '@/components/BackButton';
 
 const TYPES = [
   { id: 'FINISHED_GOOD', label: 'منتجات نهائية', icon: '💊' },
@@ -19,6 +20,7 @@ export default function InventoryPage() {
   const [filter, setFilter] = useState({ warehouse: '', search: '' });
 
   useEffect(() => {
+    setIsClient(true);
     loadData();
   }, []);
 
@@ -72,13 +74,16 @@ export default function InventoryPage() {
       <div className="print-header">
         <h1 className="text-2xl font-bold">الصناعات الكيميائية السودانية (SCI)</h1>
         <h2 className="text-xl">تقرير المخزن والجرد - {TYPES.find(t => t.id === activeTab)?.label}</h2>
-        <p className="text-sm">تاريخ التقرير: {new Date().toLocaleString('ar-SD')}</p>
+        <p className="text-sm">تاريخ التقرير: {isClient ? new Date().toLocaleString('ar-SD') : ''}</p>
       </div>
 
       <div className="flex justify-between items-center bg-white p-4 rounded-2xl shadow-sm border border-gray-100 no-print">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">🏢 مستودع SCI والتحكم</h1>
-          <p className="text-sm text-gray-500 mt-1">إدارة المخزون حسب التصنيف المؤسسي</p>
+        <div className="flex flex-col gap-2">
+          <BackButton />
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">🏢 مستودع SCI والتحكم</h1>
+            <p className="text-sm text-gray-500 mt-1">إدارة المخزون حسب التصنيف المؤسسي</p>
+          </div>
         </div>
         <div className="flex gap-2 items-center">
           <button onClick={() => window.print()} className="btn-secondary flex items-center gap-2">

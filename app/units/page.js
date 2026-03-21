@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
+import BackButton from '@/components/BackButton';
 
 export default function UnitsPage() {
   const [units, setUnits] = useState([]);
@@ -54,7 +55,10 @@ export default function UnitsPage() {
   return (
     <div className="p-6 max-w-4xl mx-auto" dir="rtl">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">📏 وحدات القياس</h1>
+        <div className="flex flex-col gap-2">
+          <BackButton />
+          <h1 className="text-2xl font-bold text-gray-800">📏 وحدات القياس</h1>
+        </div>
         <button onClick={() => { setEditId(null); setFormData({ unitName: '', unitCode: '' }); setShowModal(true); }}
           className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors">
           + إضافة وحدة جديدة

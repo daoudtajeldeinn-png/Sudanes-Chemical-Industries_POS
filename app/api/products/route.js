@@ -12,7 +12,7 @@ export async function GET(req) {
     const { searchParams } = new URL(req.url);
     const q = searchParams.get('q') || '';
     const category = searchParams.get('category') || '';
-    const filter = { isActive: true };
+    const filter = { isActive: { $ne: false } };
     if (q) filter.$or = [
       { productName: { $regex: q, $options: 'i' } },
       { productNameAr: { $regex: q, $options: 'i' } },
@@ -24,15 +24,16 @@ export async function GET(req) {
     const products = await Product.find(filter)
       .populate('category', 'categoryName categoryNameAr')
       .populate('unit', 'unitName unitCode')
-      .sort({ productName: 1 });
+      .sort({ productName: 1 })
+      .lean();
 
     // Get stock for each product
-    const stocks = await ProductStock.find({ product: { $in: products.map(p => p._id) } });
+    const stocks = await ProductStock.find({ product: { $in: products.map(p => p._id) } }).lean();
     const stockMap = {};
     stocks.forEach(s => { stockMap[s.product.toString()] = (stockMap[s.product.toString()] || 0) + s.quantity; });
 
     const result = products.map(p => ({
-      ...p.toObject(),
+      ...p,
       stock: stockMap[p._id.toString()] || 0,
     }));
 

@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
+import BackButton from '@/components/BackButton';
 
 export default function SettingsPage() {
   const [seeding, setSeeding] = useState(false);
@@ -19,7 +20,10 @@ export default function SettingsPage() {
 
   return (
     <div className="p-6 space-y-6 max-w-2xl">
-      <h1 className="text-2xl font-bold text-gray-900">⚙️ الإعدادات</h1>
+      <div className="flex gap-2 items-center flex-col items-start w-full">
+        <BackButton />
+        <h1 className="text-2xl font-bold text-gray-900">⚙️ الإعدادات</h1>
+      </div>
 
       {/* Company Info */}
       <div className="card space-y-4">

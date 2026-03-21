@@ -4,8 +4,10 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGri
 
 const COLORS = ['#2563eb','#16a34a','#dc2626','#d97706','#7c3aed','#0891b2','#db2777'];
 const MONTHS = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+import BackButton from '@/components/BackButton';
 
 export default function ReportsPage() {
+  const [isClient, setIsClient] = useState(false);
   const [data, setData] = useState(null);
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
@@ -22,6 +24,7 @@ export default function ReportsPage() {
   };
 
   useEffect(() => { load(); }, [from, to]);
+  useEffect(() => { setIsClient(true); }, []);
 
   const fmt = (n) => new Intl.NumberFormat('ar-SD').format(Math.round(n || 0));
 
@@ -61,12 +64,15 @@ export default function ReportsPage() {
       <div className="print-header">
         <h1 className="text-2xl font-bold">الصناعات الكيميائية السودانية (SCI)</h1>
         <h2 className="text-xl">تقرير الأداء المالي والإحصائي</h2>
-        <p className="text-sm">بتاريخ: {new Date().toLocaleString('ar-SD')}</p>
+        <p className="text-sm">بتاريخ: {isClient ? new Date().toLocaleString('ar-SD') : ''}</p>
         <p className="text-xs">الفترة من: {from || '-'} إلى: {to || '-'}</p>
       </div>
 
       <div className="flex items-center justify-between flex-wrap gap-3 no-print">
-        <h1 className="text-2xl font-bold text-gray-900">📈 التقارير والإحصائيات</h1>
+        <div className="flex flex-col gap-2">
+          <BackButton />
+          <h1 className="text-2xl font-bold text-gray-900">📈 التقارير والإحصائيات</h1>
+        </div>
         <div className="flex gap-3 items-center flex-wrap">
           <button onClick={() => window.print()} className="btn-secondary flex items-center gap-2">
             <span>🖨️</span> طباعة التقرير (PDF)

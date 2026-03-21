@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
+import BackButton from '@/components/BackButton';
 
 export default function CustomersPage() {
   const [customers, setCustomers] = useState([]);
@@ -45,7 +46,10 @@ export default function CustomersPage() {
   return (
     <div className="p-6 space-y-5">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">👥 العملاء</h1>
+        <div className="flex flex-col gap-2">
+          <BackButton />
+          <h1 className="text-2xl font-bold text-gray-900">👥 العملاء</h1>
+        </div>
         <button onClick={openAdd} className="btn-primary">+ إضافة عميل</button>
       </div>
       <input type="text" placeholder="بحث بالاسم أو الهاتف أو الكود..." className="input-field w-80" value={search} onChange={e => setSearch(e.target.value)} />

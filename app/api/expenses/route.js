@@ -17,8 +17,8 @@ export async function GET(req) {
       if (to) filter.expenseDate.$lte = new Date(to + 'T23:59:59');
     }
     const [expenses, categories] = await Promise.all([
-      Expense.find(filter).populate('category', 'categoryName').sort({ expenseDate: -1 }).limit(300),
-      ExpenseCategory.find({ isActive: true }),
+      Expense.find(filter).populate('category', 'categoryName').sort({ expenseDate: -1 }).limit(300).lean(),
+      ExpenseCategory.find({ isActive: true }).lean(),
     ]);
     return NextResponse.json({ expenses, categories });
   } catch (err) { return NextResponse.json({ error: err.message }, { status: 500 }); }
@@ -30,8 +30,17 @@ export async function POST(req) {
     await connectDB();
     const body = await req.json();
     body.user = user.id;
-    const cat = await ExpenseCategory.findById(body.category);
-    if (cat) body.categoryName = cat.categoryName;
+
+    if (body.category === 'OTHER' && body.customCategoryName) {
+      // Create a new expense category dynamically
+      const newCat = await ExpenseCategory.create({ categoryName: body.customCategoryName, isActive: true });
+      body.category = newCat._id;
+      body.categoryName = newCat.categoryName;
+    } else {
+      const cat = await ExpenseCategory.findById(body.category);
+      if (cat) body.categoryName = cat.categoryName;
+    }
+    
     const expense = await Expense.create(body);
     return NextResponse.json({ expense }, { status: 201 });
   } catch (err) { return NextResponse.json({ error: err.message }, { status: 400 }); }

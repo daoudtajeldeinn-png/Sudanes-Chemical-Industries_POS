@@ -1,8 +1,10 @@
 'use client';
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
+import BackButton from '@/components/BackButton';
 
 export default function PurchasesPage() {
+  const [isClient, setIsClient] = useState(false);
   const [purchases, setPurchases] = useState([]);
   const [products, setProducts] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
@@ -23,6 +25,7 @@ export default function PurchasesPage() {
 
   useEffect(() => { load(); }, [from, to]);
   useEffect(() => {
+    setIsClient(true);
     fetch('/api/products').then(r => r.json()).then(d => setProducts(d.products || []));
     fetch('/api/suppliers').then(r => r.json()).then(d => setSuppliers(d.suppliers || []));
     fetch('/api/warehouses').then(r => r.json()).then(d => setWarehouses(d.warehouses || []));
@@ -62,13 +65,16 @@ export default function PurchasesPage() {
       <div className="print-header">
         <h1 className="text-2xl font-bold">الصناعات الكيميائية السودانية (SCI)</h1>
         <h2 className="text-xl">تقرير المشتريات والتوريد</h2>
-        <p className="text-sm">بتاريخ: {new Date().toLocaleString('ar-SD')}</p>
+        <p className="text-sm">بتاريخ: {isClient ? new Date().toLocaleString('ar-SD') : ''}</p>
       </div>
 
       <div className="flex justify-between items-center no-print">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">🏭 المشتريات</h1>
-          <p className="text-sm text-gray-500 mt-1">إدارة فواتير شراء المواد والمستهلكات</p>
+        <div className="flex flex-col gap-2">
+          <BackButton />
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">🏭 المشتريات</h1>
+            <p className="text-sm text-gray-500 mt-1">إدارة فواتير شراء المواد والمستهلكات</p>
+          </div>
         </div>
         <div className="flex gap-3">
           <button onClick={() => setModal('add')} className="btn-primary">+ فاتورة شراء</button>
@@ -128,12 +134,16 @@ export default function PurchasesPage() {
             </div>
             <div className="p-6 space-y-5">
               <div className="grid grid-cols-2 gap-4">
-                <div>
+                <div className="space-y-2">
                   <label className="block text-sm font-medium text-gray-700 mb-1">المورد *</label>
                   <select value={form.supplier || ''} onChange={e => setForm(f => ({ ...f, supplier: e.target.value }))} className="input-field">
                     <option value="">-- اختر المورد --</option>
                     {suppliers.map(s => <option key={s._id} value={s._id}>{s.supplierName}</option>)}
+                    <option value="OTHER">+ إضافة مورد جديد (إدخال حر)</option>
                   </select>
+                  {form.supplier === 'OTHER' && (
+                    <input type="text" placeholder="اسم المورد الجديد (سيتم حفظه تلقائياً)" value={form.customSupplierName || ''} onChange={e => setForm(f => ({ ...f, customSupplierName: e.target.value }))} className="input-field border-blue-300 bg-blue-50" />
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">المخزن</label>
@@ -190,11 +200,15 @@ export default function PurchasesPage() {
                     {form.items.map((item, i) => (
                      <div key={i} className="bg-gray-50 rounded-xl p-4 border border-gray-100 space-y-3">
                         <div className="grid grid-cols-12 gap-3 items-center">
-                          <div className="col-span-11">
+                          <div className="col-span-11 space-y-2">
                             <select value={item.product} onChange={e => handleProductSelect(i, e.target.value)} className="input-field text-sm">
                               <option value="">-- اختر المنتج --</option>
                               {products.filter(p => p.productType !== 'FINISHED_GOOD').map(p => <option key={p._id} value={p._id}>{p.productNameAr || p.productName} ({p.productCode})</option>)}
+                              <option value="OTHER">+ إضافة صنف جديد للشراء</option>
                             </select>
+                            {item.product === 'OTHER' && (
+                              <input type="text" placeholder="اسم الصنف الجديد" value={item.customProductName || ''} onChange={e => updateItem(i, 'customProductName', e.target.value)} className="input-field text-sm border-blue-300 bg-blue-50" />
+                            )}
                           </div>
                           <div className="col-span-1 text-center">
                             <button onClick={() => removeItem(i)} className="text-red-400 hover:text-red-600 text-lg">✕</button>

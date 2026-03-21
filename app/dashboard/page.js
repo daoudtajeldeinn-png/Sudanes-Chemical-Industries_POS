@@ -6,10 +6,12 @@ import Link from 'next/link';
 const monthNames = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
 
 export default function DashboardPage() {
+  const [isClient, setIsClient] = useState(false);
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    setIsClient(true);
     fetch('/api/dashboard').then(r => r.json()).then(d => { setData(d); setLoading(false); });
   }, []);
 
@@ -36,7 +38,7 @@ export default function DashboardPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">لوحة التحكم</h1>
-          <p className="text-gray-500 text-sm mt-1">{new Date().toLocaleDateString('ar-SD', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+          <p className="text-gray-500 text-sm mt-1">{isClient ? new Date().toLocaleDateString('ar-SD', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : ''}</p>
         </div>
         <div className="flex gap-3">
           <button onClick={handleSeed} className="btn-secondary text-sm">+ بيانات تجريبية</button>
@@ -106,7 +108,7 @@ export default function DashboardPage() {
                     <td className="py-2 font-mono text-blue-600">{s.invoiceNumber}</td>
                     <td className="py-2">{s.customerName || s.customer?.name || 'نقدي'}</td>
                     <td className="py-2 font-semibold">{fmt(s.total)} SDG</td>
-                    <td className="py-2 text-gray-500">{new Date(s.createdAt).toLocaleDateString('ar-SD')}</td>
+                    <td className="py-2 text-gray-500">{isClient ? new Date(s.createdAt).toLocaleDateString('ar-SD') : ''}</td>
                   </tr>
                 ))}
               </tbody>

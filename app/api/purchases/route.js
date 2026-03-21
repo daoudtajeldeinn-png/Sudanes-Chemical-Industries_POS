@@ -26,7 +26,8 @@ export async function GET(req) {
     const purchases = await Purchase.find(filter)
       .populate('supplier', 'supplierName supplierCode')
       .sort({ createdAt: -1 })
-      .limit(300);
+      .limit(300)
+      .lean();
     return NextResponse.json({ purchases });
   } catch (err) { return NextResponse.json({ error: err.message }, { status: 500 }); }
 }
@@ -47,11 +48,42 @@ export async function POST(req) {
       if (wh) body.warehouse = wh._id;
     }
 
+    // Handle dynamic supplier
+    if (body.supplier === 'OTHER' && body.customSupplierName) {
+      const existingSup = await Supplier.findOne({ supplierName: body.customSupplierName }).session(session);
+      if (existingSup) {
+        body.supplier = existingSup._id;
+      } else {
+        const count = await Supplier.countDocuments();
+        const supCode = `SUP-${String(count + 1).padStart(4, '0')}`;
+        const newSup = await Supplier.create([{ supplierName: body.customSupplierName, supplierCode: supCode }], { session });
+        body.supplier = newSup[0]._id;
+      }
+    }
+
     // Calculate totals and handle batches
     let subTotal = 0;
     const items = [];
 
     for (const item of body.items) {
+      if (item.product === 'OTHER' && item.customProductName) {
+        const existingProd = await Product.findOne({ productName: item.customProductName }).session(session);
+        if (existingProd) {
+          item.product = existingProd._id;
+        } else {
+          const count = await Product.countDocuments();
+          const pCode = `RAW-${String(count + 1).padStart(4, '0')}`;
+          const newProd = await Product.create([{ 
+            productName: item.customProductName, 
+            productNameAr: item.customProductName, 
+            productCode: pCode, 
+            productType: body.purchaseCategory === 'PACKAGING' ? 'PACKAGING' : 'RAW_MATERIAL',
+            costPrice: item.unitCost
+          }], { session });
+          item.product = newProd[0]._id;
+        }
+      }
+
       const product = await Product.findById(item.product).session(session);
       if (!product) throw new Error(`Product not found: ${item.product}`);
 
@@ -129,8 +161,8 @@ export async function POST(req) {
 
     const purchase = await Purchase.create([body], { session });
 
-    // Update supplier balance
-    if (body.remainingAmount > 0) {
+    // Update supplier balance if possible
+    if (body.remainingAmount > 0 && mongoose.Types.ObjectId.isValid(body.supplier)) {
       await Supplier.findByIdAndUpdate(body.supplier, { $inc: { currentBalance: body.remainingAmount } }).session(session);
     }
 

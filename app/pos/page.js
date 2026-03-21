@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
+import BackButton from '@/components/BackButton';
 
 export default function POSPage() {
   const [products, setProducts] = useState([]);
@@ -18,6 +19,7 @@ export default function POSPage() {
   const [discountValue, setDiscountValue] = useState(0);
   const [loading, setLoading] = useState(false);
   const [posMode, setPosMode] = useState('SALE'); // 'SALE' or 'ISSUE'
+  const [lastInvoice, setLastInvoice] = useState(null);
   const searchRef = useRef(null);
 
   useEffect(() => {
@@ -140,6 +142,7 @@ export default function POSPage() {
         {/* Top bar */}
         <div className="p-4 border-b bg-gray-50 space-y-3">
           <div className="flex items-center gap-3">
+            <BackButton />
             <div className="flex bg-gray-200 p-1 rounded-xl">
               <button onClick={() => { setPosMode('SALE'); setCart([]); }}
                 className={`px-4 py-1.5 rounded-lg text-sm font-bold transition-all ${posMode === 'SALE' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-500 hover:text-gray-700'}`}>
