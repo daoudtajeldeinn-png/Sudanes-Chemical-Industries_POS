@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import BackButton from '@/components/BackButton';
+import { useAppData } from '@/context/AppDataContext';
 
 const TYPES = [
   { id: 'FINISHED_GOOD', label: 'منتجات نهائية', icon: '💊' },
@@ -11,40 +12,48 @@ const TYPES = [
 ];
 
 export default function InventoryPage() {
+  const { products: globalProducts, warehouses: globalWarehouses, batches: globalBatches,
+          productsLoaded, fetchProducts, fetchWarehouses, fetchBatches } = useAppData();
+
   const [stockData, setStockData] = useState([]);
   const [batches, setBatches] = useState([]);
   const [warehouses, setWarehouses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('FINISHED_GOOD');
-  const [viewMode, setViewMode] = useState('TABLE'); // 'TABLE', 'BATCH', 'GRID' (Shapes)
+  const [viewMode, setViewMode] = useState('TABLE');
   const [filter, setFilter] = useState({ warehouse: '', search: '' });
   const [isClient, setIsClient] = useState(false);
 
+  // Sync from global context whenever it changes
   useEffect(() => {
     setIsClient(true);
-    loadData(true);
-  }, []);
-
-  const loadData = async (showLoader = false) => {
-    if (showLoader) setLoading(true);
-    try {
-      const [pRes, wRes, bRes] = await Promise.all([
-        fetch('/api/products', { cache: 'no-store' }),
-        fetch('/api/warehouses', { cache: 'no-store' }),
-        fetch('/api/batches', { cache: 'no-store' })
-      ]);
-      const [pData, wData, bData] = await Promise.all([
-        pRes.json(), wRes.json(), bRes.json()
-      ]);
-      
-      setStockData(pData.products || []);
-      setWarehouses(wData.warehouses || []);
-      setBatches(bData.batches || []);
-    } catch (err) {
-      toast.error('خطأ في تحميل بيانات المخزن');
-    } finally {
+    if (globalProducts.length > 0) {
+      setStockData(globalProducts);
+      setWarehouses(globalWarehouses);
+      setBatches(globalBatches);
       setLoading(false);
     }
+    // Trigger silent background refresh from server
+    fetchProducts();
+    fetchWarehouses();
+    fetchBatches();
+  }, []);
+
+  // Keep local view in sync with global cache changes after refresh
+  useEffect(() => {
+    if (globalProducts.length > 0) {
+      setStockData(globalProducts);
+      setWarehouses(globalWarehouses);
+      setBatches(globalBatches);
+      setLoading(false);
+    }
+  }, [globalProducts, globalWarehouses, globalBatches]);
+
+  const loadData = () => {
+    // Force refresh from server
+    fetchProducts(true);
+    fetchWarehouses(true);
+    fetchBatches(true);
   };
 
   const filteredProducts = stockData.filter(p => {

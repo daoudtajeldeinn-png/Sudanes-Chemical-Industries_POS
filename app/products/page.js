@@ -2,8 +2,11 @@
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import BackButton from '@/components/BackButton';
+import { useAppData } from '@/context/AppDataContext';
 
 export default function ProductsPage() {
+  const { products: globalProducts, fetchProducts, invalidateProducts } = useAppData();
+
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [units, setUnits] = useState([]);
@@ -13,7 +16,31 @@ export default function ProductsPage() {
   const [modal, setModal] = useState(null);
   const [form, setForm] = useState({});
   const [warehouses, setWarehouses] = useState([]);
-  const [viewMode, setViewMode] = useState('TABLE'); // 'TABLE' or 'GRID'
+  const [viewMode, setViewMode] = useState('TABLE');
+
+  // Sync from global context whenever it updates
+  useEffect(() => {
+    if (globalProducts.length > 0) {
+      setLoadedFromCache(globalProducts);
+    }
+  }, [globalProducts]);
+
+  const setLoadedFromCache = (data) => {
+    // Apply local filters client-side so no flash
+    const q = (search || '').toLowerCase();
+    const filtered = data.filter(p => {
+      if (q && !(
+        p.productName?.toLowerCase().includes(q) ||
+        p.productNameAr?.includes(q) ||
+        p.productCode?.toLowerCase().includes(q) ||
+        p.barcode?.includes(q)
+      )) return false;
+      if (catFilter && p.category?._id !== catFilter && p.category !== catFilter) return false;
+      return true;
+    });
+    setProducts(filtered);
+    setLoading(false);
+  };
 
   const load = (showLoader = false) => {
     if (showLoader) setLoading(true);
@@ -23,12 +50,27 @@ export default function ProductsPage() {
     fetch(`/api/products?${params}`, { cache: 'no-store' }).then(r => r.json()).then(d => { setProducts(d.products || []); setLoading(false); });
   };
 
-  useEffect(() => { load(products.length === 0); }, [search, catFilter]);
   useEffect(() => {
-    fetch('/api/categories').then(r => r.json()).then(d => setCategories(d.categories || []));
-    fetch('/api/units').then(r => r.json()).then(d => setUnits(d.units || []));
-    fetch('/api/warehouses').then(r => r.json()).then(d => setWarehouses(d.warehouses || []));
+    // On mount: show cached data immediately if available
+    if (globalProducts.length > 0) {
+      setLoadedFromCache(globalProducts);
+    }
+    // Trigger silent background refresh
+    fetchProducts();
+    // Load support data
+    fetch('/api/categories', { cache: 'no-store' }).then(r => r.json()).then(d => setCategories(d.categories || []));
+    fetch('/api/units', { cache: 'no-store' }).then(r => r.json()).then(d => setUnits(d.units || []));
+    fetch('/api/warehouses', { cache: 'no-store' }).then(r => r.json()).then(d => setWarehouses(d.warehouses || []));
   }, []);
+
+  // Re-filter when search/catFilter changes
+  useEffect(() => {
+    if (search || catFilter) {
+      load(products.length === 0);
+    } else if (globalProducts.length > 0) {
+      setLoadedFromCache(globalProducts);
+    }
+  }, [search, catFilter]);
 
   const openAdd = () => {
     setForm({ taxRate: 0, minStock: 0, maxStock: 0, costPrice: 0, wholesalePrice: 0, retailPrice: 0 });
@@ -51,14 +93,14 @@ export default function ProductsPage() {
       body: JSON.stringify(form),
     });
     const data = await res.json();
-    if (res.ok) { toast.success(isEdit ? '✅ تم التعديل' : '✅ تمت الإضافة'); setModal(null); load(); }
+    if (res.ok) { toast.success(isEdit ? '✅ تم التعديل' : '✅ تمت الإضافة'); setModal(null); invalidateProducts(); }
     else toast.error(data.error);
   };
 
   const handleDelete = async (id) => {
     if (!confirm('حذف هذا المنتج؟')) return;
     await fetch(`/api/products/${id}`, { method: 'DELETE' });
-    toast.success('تم الحذف'); load();
+    toast.success('تم الحذف'); invalidateProducts();
   };
 
   const fmt = (n) => new Intl.NumberFormat('ar-SD').format(Math.round(n || 0));
