@@ -14,7 +14,7 @@ export default function CustomersPage() {
   const load = () => {
     setLoading(true);
     const params = search ? `?q=${search}` : '';
-    fetch(`/api/customers${params}`).then(r => r.json()).then(d => { setCustomers(d.customers || []); setLoading(false); });
+    fetch(`/api/customers${params}`, { cache: 'no-store' }).then(r => r.json()).then(d => { setCustomers(d.customers || []); setLoading(false); });
   };
 
   useEffect(() => { load(); }, [search]);

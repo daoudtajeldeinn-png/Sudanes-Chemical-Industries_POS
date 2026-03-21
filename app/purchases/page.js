@@ -20,15 +20,15 @@ export default function PurchasesPage() {
     const params = new URLSearchParams();
     if (from) params.set('from', from);
     if (to) params.set('to', to);
-    fetch(`/api/purchases?${params}`).then(r => r.json()).then(d => { setPurchases(d.purchases || []); setLoading(false); });
+    fetch(`/api/purchases?${params}`, { cache: 'no-store' }).then(r => r.json()).then(d => { setPurchases(d.purchases || []); setLoading(false); });
   };
 
   useEffect(() => { load(); }, [from, to]);
   useEffect(() => {
     setIsClient(true);
-    fetch('/api/products').then(r => r.json()).then(d => setProducts(d.products || []));
-    fetch('/api/suppliers').then(r => r.json()).then(d => setSuppliers(d.suppliers || []));
-    fetch('/api/warehouses').then(r => r.json()).then(d => setWarehouses(d.warehouses || []));
+    fetch('/api/products', { cache: 'no-store' }).then(r => r.json()).then(d => setProducts(d.products || []));
+    fetch('/api/suppliers', { cache: 'no-store' }).then(r => r.json()).then(d => setSuppliers(d.suppliers || []));
+    fetch('/api/warehouses', { cache: 'no-store' }).then(r => r.json()).then(d => setWarehouses(d.warehouses || []));
   }, []);
 
   const addItem = () => setForm(f => ({ ...f, items: [...f.items, { product: '', quantity: 1, unitCost: 0, taxRate: 0 }] }));

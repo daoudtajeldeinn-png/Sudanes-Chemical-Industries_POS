@@ -19,7 +19,7 @@ export default function ProductsPage() {
     const params = new URLSearchParams();
     if (search) params.set('q', search);
     if (catFilter) params.set('category', catFilter);
-    fetch(`/api/products?${params}`).then(r => r.json()).then(d => { setProducts(d.products || []); setLoading(false); });
+    fetch(`/api/products?${params}`, { cache: 'no-store' }).then(r => r.json()).then(d => { setProducts(d.products || []); setLoading(false); });
   };
 
   useEffect(() => { load(); }, [search, catFilter]);

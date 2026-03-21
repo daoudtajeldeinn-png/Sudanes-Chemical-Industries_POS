@@ -16,9 +16,9 @@ export default function TransfersPage() {
     setLoading(true);
     try {
       const [tRes, wRes, pRes] = await Promise.all([
-        fetch('/api/transfers'),
-        fetch('/api/warehouses'),
-        fetch('/api/products')
+        fetch('/api/transfers', { cache: 'no-store' }),
+        fetch('/api/warehouses', { cache: 'no-store' }),
+        fetch('/api/products', { cache: 'no-store' })
       ]);
       const [tData, wData, pData] = await Promise.all([
         tRes.json(), wRes.json(), pRes.json()

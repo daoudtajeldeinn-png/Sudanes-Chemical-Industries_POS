@@ -18,7 +18,7 @@ export default function ExpensesPage() {
     const params = new URLSearchParams();
     if (from) params.set('from', from);
     if (to) params.set('to', to);
-    fetch(`/api/expenses?${params}`).then(r => r.json()).then(d => {
+    fetch(`/api/expenses?${params}`, { cache: 'no-store' }).then(r => r.json()).then(d => {
       setExpenses(d.expenses || []);
       setCategories(d.categories || []);
       setLoading(false);

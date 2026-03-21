@@ -13,7 +13,7 @@ export default function SuppliersPage() {
   const load = () => {
     setLoading(true);
     const params = search ? `?q=${search}` : '';
-    fetch(`/api/suppliers${params}`).then(r => r.json()).then(d => { setSuppliers(d.suppliers || []); setLoading(false); });
+    fetch(`/api/suppliers${params}`, { cache: 'no-store' }).then(r => r.json()).then(d => { setSuppliers(d.suppliers || []); setLoading(false); });
   };
   useEffect(() => { load(); }, [search]);
 

@@ -15,7 +15,7 @@ export default function SalesPage() {
     const params = new URLSearchParams();
     if (from) params.set('from', from);
     if (to) params.set('to', to);
-    fetch(`/api/sales?${params}`).then(r => r.json()).then(d => { setSales(d.sales || []); setLoading(false); });
+    fetch(`/api/sales?${params}`, { cache: 'no-store' }).then(r => r.json()).then(d => { setSales(d.sales || []); setLoading(false); });
   };
   useEffect(() => { 
     setIsClient(true);

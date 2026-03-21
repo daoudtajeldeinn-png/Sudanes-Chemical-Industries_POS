@@ -28,9 +28,9 @@ export default function InventoryPage() {
   const loadData = async () => {
     try {
       const [pRes, wRes, bRes] = await Promise.all([
-        fetch('/api/products'),
-        fetch('/api/warehouses'),
-        fetch('/api/batches')
+        fetch('/api/products', { cache: 'no-store' }),
+        fetch('/api/warehouses', { cache: 'no-store' }),
+        fetch('/api/batches', { cache: 'no-store' })
       ]);
       const [pData, wData, bData] = await Promise.all([
         pRes.json(), wRes.json(), bRes.json()
